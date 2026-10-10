@@ -12,8 +12,9 @@ export async function connectDB(): Promise<typeof mongoose> {
   }
 
   try {
+    // 2.5s timeout for local service, 10s timeout for remote cloud cluster
     const conn = await mongoose.connect(config.mongodbUri, {
-      serverSelectionTimeoutMS: 10000
+      serverSelectionTimeoutMS: isAtlas ? 10000 : 2500
     });
     console.log(`[Database] MongoDB connected successfully: ${conn.connection.host}/${conn.connection.name}`);
     return conn;
@@ -49,4 +50,3 @@ export async function disconnectDB(): Promise<void> {
     await mongodInstance.stop();
   }
 }
-
