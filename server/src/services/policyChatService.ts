@@ -61,8 +61,8 @@ export interface ChatQueryContext {
 
 export class PolicyChatService {
   private genAI: GoogleGenerativeAI | null = null;
-  private primaryModel = config.geminiModel || 'gemini-2.5-flash';
-  private fallbackModel = 'gemini-3.1-flash-lite';
+  private primaryModel = config.geminiModel || 'gemini-3.8-flash';
+  private fallbackModel = 'gemini-flash-latest';
 
   constructor() {
     const key = config.geminiApiKey || process.env.GEMINI_API_KEY;

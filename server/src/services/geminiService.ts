@@ -103,8 +103,8 @@ export interface ExtractionResult {
 
 export class GeminiService {
   private genAI: GoogleGenerativeAI | null = null;
-  private primaryModel = config.geminiModel || 'gemini-3.1-flash-lite';
-  private fallbackModel = 'gemini-3.5-flash-lite';
+  private primaryModel = config.geminiModel || 'gemini-3.8-flash';
+  private fallbackModel = 'gemini-flash-latest';
 
   constructor(apiKey?: string) {
     const key = apiKey || config.geminiApiKey;
