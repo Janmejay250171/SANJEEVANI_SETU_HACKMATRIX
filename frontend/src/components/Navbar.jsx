@@ -13,6 +13,7 @@ export default function Navbar({
   activePolicy,
   onGoToHospitals,
   onGoToJourney,
+  onGoToClaims,
   onOpenAuth,
   onOpenProfile
 }) {
@@ -50,6 +51,14 @@ export default function Navbar({
             className={`nav-link-btn ${currentView === 'upload' ? 'active' : ''}`}
           >
             {t('navbar.uploadPolicy')}
+          </button>
+
+          <button
+            type="button"
+            onClick={onGoToClaims}
+            className={`nav-link-btn ${currentView === 'claims' ? 'active' : ''}`}
+          >
+            Claim Intelligence
           </button>
 
           <button
@@ -213,6 +222,14 @@ export default function Navbar({
             className={`mobile-nav-item ${currentView === 'upload' ? 'active' : ''}`}
           >
             {t('navbar.uploadPolicy')}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleNavClick(onGoToClaims)}
+            className={`mobile-nav-item ${currentView === 'claims' ? 'active' : ''}`}
+          >
+            Claim Intelligence
           </button>
 
           <button

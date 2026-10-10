@@ -5,6 +5,7 @@ import CoverageSummaryPage from './pages/CoverageSummaryPage';
 import HospitalDiscoveryPage from './pages/HospitalDiscoveryPage';
 import CareJourneyPage from './pages/CareJourneyPage';
 import HowItWorksPage from './pages/HowItWorksPage';
+import ClaimAdjudicationPage from './pages/ClaimAdjudicationPage';
 import AuthModal from './components/AuthModal';
 import ProfileModal from './components/ProfileModal';
 import { useAuth } from './context/AuthContext';
@@ -21,14 +22,17 @@ export default function App() {
 
   // Restore session from localStorage if available
   const [currentView, setCurrentView] = useState(() => {
-    if (typeof window !== 'undefined' && window.location.pathname === '/how-it-works') {
-      return 'how-it-works';
+    if (typeof window !== 'undefined') {
+      if (window.location.pathname === '/how-it-works') return 'how-it-works';
+      if (window.location.pathname === '/claims') return 'claims';
     }
     try {
       const saved = localStorage.getItem('sehatsure_session');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.currentView && parsed.activePolicy) return parsed.currentView;
+        if (parsed.currentView && (parsed.activePolicy || parsed.currentView === 'claims' || parsed.currentView === 'how-it-works')) {
+          return parsed.currentView;
+        }
       }
     } catch {}
     return 'upload';
@@ -80,7 +84,7 @@ export default function App() {
 
   // Protect unauthenticated access: require login before accessing summary, discovery or journey
   useEffect(() => {
-    if (!user && currentView !== 'upload' && currentView !== 'how-it-works') {
+    if (!user && currentView !== 'upload' && currentView !== 'how-it-works' && currentView !== 'claims') {
       setCurrentView('upload');
       handleOpenAuth('login', 'Please log in first to access your insurance policy.');
     }
@@ -89,7 +93,7 @@ export default function App() {
   // Sync active session state to localStorage
   useEffect(() => {
     try {
-      if (activePolicy) {
+      if (activePolicy || currentView === 'claims') {
         localStorage.setItem(
           'sehatsure_session',
           JSON.stringify({
@@ -106,12 +110,16 @@ export default function App() {
     }
   }, [currentView, activePolicy, journeyHospital, journeyProcedure, journeyRoom]);
 
-  // Check URL path for direct policy navigation or how-it-works
+  // Check URL path for direct policy navigation, claims or how-it-works
   useEffect(() => {
     const handleUrlRoute = () => {
       const path = window.location.pathname;
       if (path === '/how-it-works') {
         setCurrentView('how-it-works');
+        return;
+      }
+      if (path === '/claims') {
+        setCurrentView('claims');
         return;
       }
       const match = path.match(/\/policy\/([a-zA-Z0-9_-]+)/);
@@ -140,6 +148,12 @@ export default function App() {
   const handleGoHowItWorks = () => {
     setCurrentView('how-it-works');
     window.history.pushState({}, '', '/how-it-works');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleGoToClaims = () => {
+    setCurrentView('claims');
+    window.history.pushState({}, '', '/claims');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -254,6 +268,7 @@ export default function App() {
         onResetPolicy={handleGoHome}
         onGoToHospitals={() => setCurrentView('discovery')}
         onGoToJourney={handleGoToJourney}
+        onGoToClaims={handleGoToClaims}
         onOpenAuth={(mode) => handleOpenAuth(mode)}
         onOpenProfile={handleOpenProfile}
       />
@@ -299,6 +314,14 @@ export default function App() {
                 roomType={journeyRoom}
                 onBackToHospitals={() => setCurrentView('discovery')}
                 onBackToPolicy={() => setCurrentView('summary')}
+              />
+            )}
+
+            {currentView === 'claims' && (
+              <ClaimAdjudicationPage
+                activePolicy={activePolicy}
+                onBackToPolicy={() => setCurrentView('summary')}
+                onGoToUpload={handleGoHome}
               />
             )}
           </main>

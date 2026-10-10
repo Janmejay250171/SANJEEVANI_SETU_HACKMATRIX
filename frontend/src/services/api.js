@@ -156,4 +156,153 @@ export async function askPolicyQuestionApi(policyId, message, history = [], over
   return data;
 }
 
+// ============================================================================
+// FIN-01 Claim Adjudication, Bill Ingestion & Reassessment APIs
+// ============================================================================
+
+export async function uploadBillPdf(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch('/api/claims/bills/upload', {
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to upload and parse itemized bill PDF.');
+  }
+  return data.data;
+}
+
+export async function getDemoClaimScenarios() {
+  const res = await fetch('/api/claims/demo/scenarios');
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to fetch demonstration scenarios.');
+  }
+  return data.data;
+}
+
+export async function createClaimAssessment(payload, token = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch('/api/claims/assess', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    const err = new Error(data.error?.message || 'Failed to assess claim.');
+    err.details = data.error?.details;
+    throw err;
+  }
+  return data.data;
+}
+
+export async function getClaimAssessment(claimId, token = null) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/claims/${claimId}`, { headers });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to retrieve claim assessment.');
+  }
+  return data.data;
+}
+
+export async function getClaimLedger(claimId, token = null) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/claims/${claimId}/ledger`, { headers });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to retrieve claim ledger.');
+  }
+  return data.data;
+}
+
+export async function getClaimEvidence(claimId, token = null) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/claims/${claimId}/evidence`, { headers });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to retrieve clause citations and evidence.');
+  }
+  return data.data;
+}
+
+export async function updateClaimItem(claimId, itemId, updates, token = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/claims/${claimId}/items/${itemId}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(updates)
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to update bill line item.');
+  }
+  return data.data;
+}
+
+export async function registerClaimAmendment(claimId, amendmentData, token = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/claims/${claimId}/amendments`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(amendmentData)
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to register policy amendment.');
+  }
+  return data.data;
+}
+
+export async function reassessClaim(claimId, reassessmentReason, token = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/claims/${claimId}/reassess`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ reassessmentReason })
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to reassess claim.');
+  }
+  return data.data;
+}
+
+export async function compareClaimAssessments(claimId, baseAssessmentId = null, token = null) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const query = baseAssessmentId ? `?baseAssessmentId=${encodeURIComponent(baseAssessmentId)}` : '';
+  const res = await fetch(`/api/claims/${claimId}/compare${query}`, { headers });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to compare assessments.');
+  }
+  return data.data;
+}
+
+
 

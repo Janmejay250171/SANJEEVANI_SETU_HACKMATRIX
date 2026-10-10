@@ -9,6 +9,7 @@ import policyRoutes from './routes/policyRoutes.js';
 import hospitalRoutes from './routes/hospitalRoutes.js';
 import journeyRoutes from './routes/journeyRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import claimRoutes from './routes/claimRoutes.js';
 import { hospitalService } from './services/hospitalService.js';
 import { Policy } from './models/Policy.js';
 import { DEMO_POLICIES } from './utils/demoData.js';
@@ -63,6 +64,9 @@ app.use('/api/journey', journeyRoutes);
 
 // Authentication & Profile Routes
 app.use('/api/auth', authRoutes);
+
+// Feature FIN-01: Claim Adjudication, Bill Ingestion & Reassessment Routes
+app.use('/api/claims', claimRoutes);
 
 // 404 handler for unknown API routes
 app.use('/api/*', (_req, res) => {

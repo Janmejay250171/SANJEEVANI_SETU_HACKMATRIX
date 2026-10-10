@@ -9,7 +9,8 @@
     "start": "node dist/index.js",
     "gen:policies": "tsx src/scripts/generatePdfs.ts",
     "seed": "tsx src/scripts/seedDemos.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:evaluation": "tsx src/scripts/runFin01Evaluation.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
