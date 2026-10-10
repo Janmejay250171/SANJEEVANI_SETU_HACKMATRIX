@@ -4,13 +4,15 @@
   "private": true,
   "description": "SehatSure - Hospital, Network & Cost Intelligence (Person 2)",
   "workspaces": [
-    "server"
+    "server",
+    "frontend"
   ],
   "scripts": {
-    "install:all": "npm install && npm --prefix server install",
-    "dev": "npm --prefix server run dev",
+    "install:all": "npm install && npm --prefix server install && npm --prefix frontend install",
+    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix frontend run dev\"",
     "dev:server": "npm --prefix server run dev",
-    "build": "npm --prefix server run build",
+    "dev:client": "npm --prefix frontend run dev",
+    "build": "npm --prefix server run build && npm --prefix frontend run build",
     "start": "node --max-old-space-size=450 server/dist/index.js",
     "test": "npm --prefix server run test"
   },
