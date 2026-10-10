@@ -1,0 +1,20 @@
+{
+  "name": "sehatsure",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SehatSure - Hospital, Network & Cost Intelligence (Person 2)",
+  "workspaces": [
+    "server"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm --prefix server install",
+    "dev": "npm --prefix server run dev",
+    "dev:server": "npm --prefix server run dev",
+    "build": "npm --prefix server run build",
+    "start": "node --max-old-space-size=450 server/dist/index.js",
+    "test": "npm --prefix server run test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  }
+}

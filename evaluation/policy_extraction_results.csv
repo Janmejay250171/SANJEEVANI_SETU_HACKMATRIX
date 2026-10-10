@@ -1,0 +1,61 @@
+policy_key,field_name,ground_truth_val,extracted_val,match,unit_condition,error_type
+star-health,insurer,Star Health,Star Health,1,string,NONE
+star-health,sumInsured,300000,300000,1,INR,NONE
+star-health,roomLimit.type,amount,amount,1,enum,NONE
+star-health,roomLimit.value,3000,3000,1,INR,NONE
+star-health,copay,10,10,1,%,NONE
+star-health,nonNetworkCopay,20,20,1,%,NONE
+star-health,deductible,0,0,1,INR,NONE
+star-health,proportionateDeduction,true,true,1,boolean,NONE
+star-health,preHospitalizationDays,30,30,1,days,NONE
+star-health,postHospitalizationDays,60,60,1,days,NONE
+hdfc-ergo,insurer,HDFC ERGO,HDFC ERGO,1,string,NONE
+hdfc-ergo,sumInsured,500000,500000,1,INR,NONE
+hdfc-ergo,roomLimit.type,percent,percent,1,enum,NONE
+hdfc-ergo,roomLimit.value,1,1,1,%,NONE
+hdfc-ergo,copay,0,0,1,%,NONE
+hdfc-ergo,nonNetworkCopay,null,null,1,%,NONE
+hdfc-ergo,deductible,0,0,1,INR,NONE
+hdfc-ergo,proportionateDeduction,true,true,1,boolean,NONE
+hdfc-ergo,preHospitalizationDays,30,30,1,days,NONE
+hdfc-ergo,postHospitalizationDays,60,60,1,days,NONE
+pmjay,insurer,National Health Authority,National Health Authority,1,string,NONE
+pmjay,sumInsured,500000,500000,1,INR,NONE
+pmjay,roomLimit.type,none,none,1,enum,NONE
+pmjay,roomLimit.value,null,null,1,INR,NONE
+pmjay,copay,0,0,1,%,NONE
+pmjay,nonNetworkCopay,0,0,1,%,NONE
+pmjay,deductible,0,0,1,INR,NONE
+pmjay,proportionateDeduction,false,false,1,boolean,NONE
+pmjay,preHospitalizationDays,3,3,1,days,NONE
+pmjay,postHospitalizationDays,15,15,1,days,NONE
+esi,insurer,Employees State Insurance Corporation,Employees State Insurance Corporation,1,string,NONE
+esi,sumInsured,null,null,1,INR,NONE
+esi,roomLimit.type,none,none,1,enum,NONE
+esi,roomLimit.value,null,null,1,INR,NONE
+esi,copay,0,0,1,%,NONE
+esi,nonNetworkCopay,0,0,1,%,NONE
+esi,deductible,0,0,1,INR,NONE
+esi,proportionateDeduction,false,false,1,boolean,NONE
+esi,preHospitalizationDays,30,30,1,days,NONE
+esi,postHospitalizationDays,30,30,1,days,NONE
+sbi-general,insurer,SBI General Insurance Company Limited,SBI General Insurance Company Limited,1,string,NONE
+sbi-general,sumInsured,null,null,1,INR,NONE
+sbi-general,roomLimit.type,percent,percent,1,enum,NONE
+sbi-general,roomLimit.value,1,1,1,%,NONE
+sbi-general,copay,null,null,1,%,NONE
+sbi-general,nonNetworkCopay,10,10,1,%,NONE
+sbi-general,deductible,null,null,1,INR,NONE
+sbi-general,proportionateDeduction,null,null,1,boolean,NONE
+sbi-general,preHospitalizationDays,30,30,1,days,NONE
+sbi-general,postHospitalizationDays,60,60,1,days,NONE
+pol_sbi_retail,insurer,SBI General Insurance Company Limited,SBI General Insurance Company Limited,1,string,NONE
+pol_sbi_retail,sumInsured,1000000,1000000,1,INR,NONE
+pol_sbi_retail,roomLimit.type,percent,percent,1,enum,NONE
+pol_sbi_retail,roomLimit.value,1,1,1,%,NONE
+pol_sbi_retail,copay,0,0,1,%,NONE
+pol_sbi_retail,nonNetworkCopay,10,10,1,%,NONE
+pol_sbi_retail,deductible,0,0,1,INR,NONE
+pol_sbi_retail,proportionateDeduction,true,true,1,boolean,NONE
+pol_sbi_retail,preHospitalizationDays,30,30,1,days,NONE
+pol_sbi_retail,postHospitalizationDays,60,60,1,days,NONE
