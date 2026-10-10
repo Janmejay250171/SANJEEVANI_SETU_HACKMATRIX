@@ -1,0 +1,51 @@
+test_id,category,input_description,expected_behavior,actual_status,safely_handled
+ADV_01,ML_Domain,{"procedure":"Brain Laser Resurfacing";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_02,ML_Domain,{"procedure":"Total Knee Replacement";"tier":"Unsupported Galaxy Tier"},refusal,SAFE_HANDLED,1
+ADV_03,ML_Negative,{"procedure":"Total Knee Replacement";"tier":"Metro 1";"expectedStayDays":-5},refusal,SAFE_HANDLED,1
+ADV_04,ML_Missing,{},refusal,SAFE_HANDLED,1
+ADV_05,ML_Extreme,{"procedure":"Total Knee Replacement";"tier":"Metro 1";"expectedStayDays":1000},refusal,SAFE_HANDLED,1
+ADV_06,Fin_Zero_SI,{"sumInsured":0},zero_covered,SAFE_HANDLED,1
+ADV_07,Fin_100_Copay,{"copay":100},zero_insurer,SAFE_HANDLED,1
+ADV_08,Fin_Huge_Bill,{"procedureCharges":100000000},capped_by_si,SAFE_HANDLED,1
+ADV_09,Fin_Extreme_Room,{"roomRatePerDay":95000},large_room_excess,SAFE_HANDLED,1
+ADV_10,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_10";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_11,Fin_Extreme_Room,{"roomRatePerDay":105000},large_room_excess,SAFE_HANDLED,1
+ADV_12,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_12";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_13,Fin_Extreme_Room,{"roomRatePerDay":115000},large_room_excess,SAFE_HANDLED,1
+ADV_14,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_14";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_15,Fin_Extreme_Room,{"roomRatePerDay":125000},large_room_excess,SAFE_HANDLED,1
+ADV_16,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_16";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_17,Fin_Extreme_Room,{"roomRatePerDay":135000},large_room_excess,SAFE_HANDLED,1
+ADV_18,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_18";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_19,Fin_Extreme_Room,{"roomRatePerDay":145000},large_room_excess,SAFE_HANDLED,1
+ADV_20,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_20";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_21,Fin_Extreme_Room,{"roomRatePerDay":155000},large_room_excess,SAFE_HANDLED,1
+ADV_22,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_22";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_23,Fin_Extreme_Room,{"roomRatePerDay":165000},large_room_excess,SAFE_HANDLED,1
+ADV_24,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_24";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_25,Fin_Extreme_Room,{"roomRatePerDay":175000},large_room_excess,SAFE_HANDLED,1
+ADV_26,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_26";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_27,Fin_Extreme_Room,{"roomRatePerDay":185000},large_room_excess,SAFE_HANDLED,1
+ADV_28,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_28";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_29,Fin_Extreme_Room,{"roomRatePerDay":195000},large_room_excess,SAFE_HANDLED,1
+ADV_30,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_30";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_31,Fin_Extreme_Room,{"roomRatePerDay":205000},large_room_excess,SAFE_HANDLED,1
+ADV_32,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_32";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_33,Fin_Extreme_Room,{"roomRatePerDay":215000},large_room_excess,SAFE_HANDLED,1
+ADV_34,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_34";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_35,Fin_Extreme_Room,{"roomRatePerDay":225000},large_room_excess,SAFE_HANDLED,1
+ADV_36,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_36";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_37,Fin_Extreme_Room,{"roomRatePerDay":235000},large_room_excess,SAFE_HANDLED,1
+ADV_38,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_38";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_39,Fin_Extreme_Room,{"roomRatePerDay":245000},large_room_excess,SAFE_HANDLED,1
+ADV_40,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_40";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_41,Fin_Extreme_Room,{"roomRatePerDay":255000},large_room_excess,SAFE_HANDLED,1
+ADV_42,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_42";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_43,Fin_Extreme_Room,{"roomRatePerDay":265000},large_room_excess,SAFE_HANDLED,1
+ADV_44,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_44";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_45,Fin_Extreme_Room,{"roomRatePerDay":275000},large_room_excess,SAFE_HANDLED,1
+ADV_46,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_46";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_47,Fin_Extreme_Room,{"roomRatePerDay":285000},large_room_excess,SAFE_HANDLED,1
+ADV_48,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_48";"tier":"Metro 1"},refusal,SAFE_HANDLED,1
+ADV_49,Fin_Extreme_Room,{"roomRatePerDay":295000},large_room_excess,SAFE_HANDLED,1
+ADV_50,ML_Bogus_Procedure,{"procedure":"Fictional Medical Condition X_50";"tier":"Metro 1"},refusal,SAFE_HANDLED,1

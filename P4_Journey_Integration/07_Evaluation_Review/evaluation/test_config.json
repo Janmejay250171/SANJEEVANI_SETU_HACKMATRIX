@@ -1,0 +1,21 @@
+{
+  "evaluation_version": "2.1.0",
+  "run_timestamp": "2026-10-08T21:17:26.162Z",
+  "environment": {
+    "os": "Windows 11",
+    "architecture": "AMD64",
+    "python_version": "3.12.10",
+    "node_version": "v22.14.0",
+    "random_seed": 42
+  },
+  "seeds": {
+    "deterministic_financial": 42,
+    "ml_cross_validation": 42,
+    "metamorphic_generation": 42
+  },
+  "data_hashes": {
+    "pvt_costs_sha256": "b3a9852cfbd47cabcb9d245dc0003334d6885dcacfe4322c054831924649c7ad",
+    "hospitals_csv_sha256": "1bb93c794babf7d360ce59fb1219949a21b18ca5f4ba8f6187754c1e438f0ee3"
+  },
+  "evaluator_role": "Senior QA Engineer, ML Evaluation Engineer, Financial-Systems Auditor & Technical Validation Researcher"
+}
