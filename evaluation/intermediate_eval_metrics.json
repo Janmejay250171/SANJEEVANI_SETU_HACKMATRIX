@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-10-08T21:17:26.162Z",
+  "random_seed": 42,
+  "financial_engine": {
+    "total_scenarios": 2000,
+    "exact_match_passed": 2000,
+    "exact_match_rate_pct": 100,
+    "max_rupee_error": 0,
+    "intermediate_stage_pass_rate_pct": 100
+  },
+  "invariants": {
+    "total_trials": 1000,
+    "inv1_non_negative_oop": 1000,
+    "inv2_covered_le_eligible": 1000,
+    "inv3_covered_le_si": 1000,
+    "inv4_deductible_monotonicity": 1000,
+    "inv5_copay_monotonicity": 1000,
+    "inv8_room_ceiling_invariance": 1000,
+    "inv9_bill_sum_conservation": 1000,
+    "inv10_zero_si_zero_payable": 1000
+  },
+  "end_to_end": {
+    "total_scenarios": 100,
+    "successful_adjudications": 70,
+    "correct_safety_refusals": 30,
+    "genuine_failures": 0,
+    "total_safe_passed": 100,
+    "safe_pass_rate_pct": 100
+  },
+  "metamorphic": {
+    "total_trials_per_relation": 100,
+    "mr1_stay_increase": 100,
+    "mr2_room_upgrade": 100,
+    "mr3_copay_increase": 100,
+    "mr4_deductible_increase": 100,
+    "mr5_si_increase": 100
+  },
+  "adversarial": {
+    "total_cases": 50,
+    "safely_handled": 50,
+    "safety_rate_pct": 100
+  },
+  "rag_qa": {
+    "total_questions": 30,
+    "answer_correct": 30,
+    "answer_accuracy_pct": 100,
+    "citation_present": 30,
+    "abstention_correct": 30
+  },
+  "policy_extraction": {
+    "total_fields": 60,
+    "matched_fields": 60,
+    "field_accuracy_pct": 100
+  }
+}

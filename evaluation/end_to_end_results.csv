@@ -1,0 +1,101 @@
+scenario_id,policy_id,city,procedure,room_category,hospitals_found,benchmark_available,ml_status,breakdown_computed,category,evaluation_status
+E2E_1,pol_demo_hdfc,Hyderabad,"CABG",Single Private Room,1051,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_2,pol_demo_star,Pune,"CABG",Single Private Room,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_3,pol_demo_pmjay,Kolkata,"Total Knee Replacement",General Ward,302,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_4,pol_demo_star,Pune,"CABG",Twin Sharing,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_5,pol_demo_sbi,Hyderabad,"Cholecystectomy",Single Private Room,1051,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_6,pol_demo_hdfc,Ahmedabad,"C-Section",General Ward,609,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_7,pol_demo_sbi,Kolkata,"Total Knee Replacement",Twin Sharing,302,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_8,pol_demo_esi,Mumbai,"Angioplasty",Twin Sharing,518,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_9,pol_demo_hdfc,Pune,"CABG",Single Private Room,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_10,pol_demo_star,Ahmedabad,"Hernia Repair",General Ward,609,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_11,pol_demo_star,Delhi,"Chemotherapy",Single Private Room,30,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_12,pol_demo_sbi,Pune,"CABG",General Ward,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_13,pol_demo_pmjay,Hyderabad,"Chemotherapy",Twin Sharing,1051,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_14,pol_demo_pmjay,Hyderabad,"Chemotherapy",Single Private Room,1051,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_15,pol_demo_pmjay,Mumbai,"C-Section",Single Private Room,518,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_16,pol_demo_pmjay,Pune,"CABG",Twin Sharing,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_17,pol_demo_esi,Delhi,"Hip Replacement",General Ward,30,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_18,pol_demo_esi,Hyderabad,"Angioplasty",General Ward,1051,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_19,pol_demo_esi,Chennai,"CABG",Twin Sharing,724,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_20,pol_demo_pmjay,Chennai,"Total Knee Replacement",Single Private Room,724,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_21,pol_demo_star,Ahmedabad,"Appendectomy",Single Private Room,609,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_22,pol_demo_pmjay,Bengaluru,"Hip Replacement",Single Private Room,958,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_23,pol_demo_star,Delhi,"Normal Delivery",General Ward,30,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_24,pol_demo_sbi,Delhi,"C-Section",Twin Sharing,30,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_25,pol_demo_esi,Chennai,"C-Section",General Ward,724,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_26,pol_demo_hdfc,Mumbai,"Angioplasty",General Ward,518,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_27,pol_demo_hdfc,Delhi,"Hernia Repair",Single Private Room,30,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_28,pol_demo_star,Hyderabad,"Normal Delivery",General Ward,1051,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_29,pol_demo_esi,Hyderabad,"Hip Replacement",Single Private Room,1051,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_30,pol_demo_star,Bengaluru,"Hip Replacement",Twin Sharing,958,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_31,pol_demo_pmjay,Pune,"Angioplasty",Twin Sharing,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_32,pol_demo_star,Pune,"CABG",General Ward,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_33,pol_demo_hdfc,Pune,"Angioplasty",Twin Sharing,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_34,pol_demo_hdfc,Chennai,"Appendectomy",Twin Sharing,724,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_35,pol_demo_esi,Bengaluru,"Total Knee Replacement",Twin Sharing,958,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_36,pol_demo_esi,Ahmedabad,"Hernia Repair",Twin Sharing,609,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_37,pol_demo_esi,Kolkata,"Hernia Repair",Twin Sharing,302,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_38,pol_demo_esi,Kolkata,"Total Knee Replacement",Single Private Room,302,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_39,pol_demo_sbi,Mumbai,"Normal Delivery",Single Private Room,518,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_40,pol_demo_pmjay,Kolkata,"Hernia Repair",General Ward,302,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_41,pol_demo_sbi,Kolkata,"Angioplasty",Single Private Room,302,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_42,pol_demo_star,Chennai,"Total Knee Replacement",Single Private Room,724,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_43,pol_demo_sbi,Pune,"CABG",General Ward,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_44,pol_demo_esi,Ahmedabad,"Normal Delivery",Twin Sharing,609,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_45,pol_demo_esi,Ahmedabad,"Appendectomy",General Ward,609,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_46,pol_demo_esi,Pune,"Normal Delivery",General Ward,1045,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_47,pol_demo_pmjay,Kolkata,"C-Section",Single Private Room,302,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_48,pol_demo_pmjay,Delhi,"C-Section",Twin Sharing,30,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_49,pol_demo_pmjay,Mumbai,"Cholecystectomy",General Ward,518,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_50,pol_demo_hdfc,Mumbai,"Appendectomy",Twin Sharing,518,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_51,pol_demo_pmjay,Delhi,"Angioplasty",General Ward,30,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_52,pol_demo_star,Kolkata,"Cholecystectomy",Twin Sharing,302,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_53,pol_demo_sbi,Ahmedabad,"Cholecystectomy",Single Private Room,609,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_54,pol_demo_star,Ahmedabad,"CABG",General Ward,609,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_55,pol_demo_hdfc,Chennai,"Total Knee Replacement",General Ward,724,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_56,pol_demo_sbi,Bengaluru,"Normal Delivery",Single Private Room,958,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_57,pol_demo_pmjay,Chennai,"Chemotherapy",Single Private Room,724,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_58,pol_demo_esi,Hyderabad,"Normal Delivery",Single Private Room,1051,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_59,pol_demo_sbi,Delhi,"Normal Delivery",Twin Sharing,30,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_60,pol_demo_star,Pune,"Total Knee Replacement",Single Private Room,1045,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_61,pol_demo_esi,Hyderabad,"Appendectomy",Twin Sharing,1051,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_62,pol_demo_esi,Kolkata,"CABG",Twin Sharing,302,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_63,pol_demo_esi,Delhi,"CABG",General Ward,30,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_64,pol_demo_sbi,Ahmedabad,"Chemotherapy",Single Private Room,609,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_65,pol_demo_star,Delhi,"Hip Replacement",Single Private Room,30,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_66,pol_demo_sbi,Delhi,"Appendectomy",Twin Sharing,30,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_67,pol_demo_esi,Mumbai,"Hip Replacement",Twin Sharing,518,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_68,pol_demo_star,Kolkata,"Cholecystectomy",Twin Sharing,302,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_69,pol_demo_sbi,Ahmedabad,"Normal Delivery",Twin Sharing,609,0,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_70,pol_demo_star,Mumbai,"Hip Replacement",General Ward,518,1,available,1,SUCCESSFUL_ADJUDICATION,PASS
+E2E_71,pol_demo_sbi,Chennai,"Aesthetic Rhinoplasty",Twin Sharing,724,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_72,pol_demo_esi,Ahmedabad,"Aesthetic Rhinoplasty",Single Private Room,609,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_73,pol_demo_esi,Mumbai,"Aesthetic Rhinoplasty",General Ward,518,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_74,pol_demo_sbi,Delhi,"Cataract Surgery",Single Private Room,30,1,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_75,pol_demo_sbi,Hyderabad,"Experimental Immunotherapy",General Ward,1051,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_76,pol_demo_esi,Mumbai,"Bariatric Gastric Bypass",Twin Sharing,518,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_77,pol_demo_hdfc,Mumbai,"Experimental Immunotherapy",Single Private Room,518,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_78,pol_demo_esi,Chennai,"Aesthetic Rhinoplasty",Single Private Room,724,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_79,pol_demo_sbi,Ahmedabad,"Experimental Immunotherapy",Single Private Room,609,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_80,pol_demo_sbi,Kolkata,"Aesthetic Rhinoplasty",Twin Sharing,302,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_81,pol_demo_hdfc,Hyderabad,"Experimental Immunotherapy",Twin Sharing,1051,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_82,pol_demo_sbi,Hyderabad,"Cataract Surgery",Twin Sharing,1051,1,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_83,pol_demo_pmjay,Kolkata,"Experimental Immunotherapy",Single Private Room,302,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_84,pol_demo_pmjay,Ahmedabad,"Dental Implantation",Twin Sharing,609,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_85,pol_demo_esi,Delhi,"Cataract Surgery",Single Private Room,30,1,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_86,pol_demo_esi,Chennai,"Dental Implantation",General Ward,724,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_87,pol_demo_star,Ahmedabad,"Cataract Surgery",General Ward,609,1,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_88,pol_demo_esi,Bengaluru,"Bariatric Gastric Bypass",Twin Sharing,958,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_89,pol_demo_hdfc,Delhi,"Experimental Immunotherapy",General Ward,30,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_90,pol_demo_pmjay,Pune,"Cataract Surgery",Single Private Room,1045,1,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_91,pol_demo_pmjay,Chennai,"Aesthetic Rhinoplasty",Twin Sharing,724,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_92,pol_demo_esi,Delhi,"Dental Implantation",Single Private Room,30,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_93,pol_demo_sbi,Ahmedabad,"Experimental Immunotherapy",Twin Sharing,609,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_94,pol_demo_sbi,Chennai,"Experimental Immunotherapy",General Ward,724,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_95,pol_demo_esi,Chennai,"Dental Implantation",General Ward,724,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_96,pol_demo_esi,Delhi,"Dental Implantation",General Ward,30,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_97,pol_demo_star,Kolkata,"Aesthetic Rhinoplasty",General Ward,302,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_98,pol_demo_hdfc,Ahmedabad,"Bariatric Gastric Bypass",Single Private Room,609,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_99,pol_demo_sbi,Bengaluru,"Bariatric Gastric Bypass",Twin Sharing,958,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
+E2E_100,pol_demo_sbi,Delhi,"Bariatric Gastric Bypass",General Ward,30,0,insufficient_data,1,CORRECT_SAFETY_REFUSAL,PASS
