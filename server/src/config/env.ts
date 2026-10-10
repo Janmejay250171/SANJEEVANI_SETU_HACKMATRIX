@@ -40,7 +40,7 @@ function resolveMongoUri(): string {
 export const config = {
   mongodbUri: resolveMongoUri(),
   geminiApiKey: (process.env.GEMINI_API_KEY || '').trim(),
-  geminiModel: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+  geminiModel: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
   port: parseInt(process.env.PORT || '5000', 10),
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173'
 };
