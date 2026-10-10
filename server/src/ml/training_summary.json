@@ -1,0 +1,11 @@
+{
+  "trained_at": "2026-10-08T17:47:25.884342+00:00",
+  "model_type": "RidgeTabularRegression",
+  "dataset_rows": 184,
+  "10fold_mae": 45423.467142577116,
+  "10fold_rmse": 86721.72033346441,
+  "10fold_r2": 0.26852132129503,
+  "grouped_proc_cv_mae": 64320.59552396535,
+  "grouped_proc_cv_r2": -0.6838751010545133,
+  "leave_one_tier_out_mae": 44498.159555444814
+}
