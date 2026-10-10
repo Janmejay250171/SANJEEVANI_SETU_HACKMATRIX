@@ -1,5 +1,5 @@
 {
-  "model_name": "SehatSure Treatment-Cost Driver Analysis Regressor",
+  "model_name": "Sanjeevani Setu Treatment-Cost Driver Analysis Regressor",
   "model_type": "RidgeTabularRegression",
   "model_version": "1.0.0",
   "framework": "scikit-learn / standalone-export",

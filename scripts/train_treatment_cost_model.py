@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-SehatSure ML Treatment-Cost Driver Analysis - Model Training Pipeline
+Sanjeevani Setu ML Treatment-Cost Driver Analysis - Model Training Pipeline
 ======================================================================
 Trains an interpretable, mathematically defensible tabular regression model
-on SehatSure's verified private hospital procedure tariff dataset (pvt_costs.csv).
+on Sanjeevani Setu's verified private hospital procedure tariff dataset (pvt_costs.csv).
 
 Key Architecture:
 - Problem: Supervised tabular regression predicting expected treatment cost (mean_cost).
@@ -49,7 +49,7 @@ def main():
         sys.exit(1)
 
     print("======================================================================")
-    print("SEHATSURE ML: TREATMENT-COST DRIVER ANALYSIS TRAINING PIPELINE")
+    print("Sanjeevani Setu ML: TREATMENT-COST DRIVER ANALYSIS TRAINING PIPELINE")
     print("======================================================================")
     print(f"Dataset path: {data_path}")
     dataset_hash = compute_file_sha256(data_path)
@@ -235,7 +235,7 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
 
     artifact = {
-        "model_name": "SehatSure Treatment-Cost Driver Analysis Regressor",
+        "model_name": "Sanjeevani Setu Treatment-Cost Driver Analysis Regressor",
         "model_type": "RidgeTabularRegression",
         "model_version": "1.0.0",
         "framework": "scikit-learn / standalone-export",

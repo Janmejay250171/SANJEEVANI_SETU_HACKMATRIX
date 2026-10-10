@@ -1,57 +1,73 @@
 ================================================================================
-PERSON 2 — HOSPITAL, NETWORK & COST INTELLIGENCE
-PHASE 5: DATA MODEL TOOLING, ML TRAINING & DATASET CLEANERS
+SANJEEVANI SETU — PERSON 2: HOSPITAL, NETWORK & COST INTELLIGENCE
+PHASE 05: DATA PIPELINE TOOLING, ML TRAINING & DATASET CLEANING
 ================================================================================
-Target Folder: P2_Hospital_Cost/05_Data_Model_Tooling/
+Generated: 2026-10-10
 Git Branch: feature/hospital-cost
-Status: COMPLETED & VERIFIED
+Target Architecture: Sanjeevani Setu Data Tooling & Machine Learning Pipelines
+Source Migration: Migrated from sehatsuree to sanjeevani setu
 
-1. OBJECTIVE & SCOPE
---------------------
-Phase 5 provides the core offline engineering, pipeline automation,
-and ML training scripts for Person 2:
-- Hospital dataset cleaner, deduplicator, and canonical tier corrector
-- Deep dataset quality analyzer flagging spliced OCR addresses & discrepancies
-- Strict procedural cost benchmark validator
-- Supervised tabular Ridge ML training pipeline with cross-validation.
+--------------------------------------------------------------------------------
+1. PHASE OVERVIEW & OBJECTIVE
+--------------------------------------------------------------------------------
+This phase contains the foundational data preprocessing, dataset hygiene, ML 
+model training, and integrity validation scripts for the Sanjeevani Setu platform.
 
-2. ASSIGNED FILES VERIFICATION
-------------------------------
-[x] scripts/train_treatment_cost_model.py
+All files are verified at both:
+- Target Original Project Paths: scripts/ and server/
+- Phase Tooling Folder: P2_Hospital_Cost/05_Data_Model_Tooling/
+
+--------------------------------------------------------------------------------
+2. ASSIGNED FILE INVENTORY & TOOLING CAPABILITIES
+--------------------------------------------------------------------------------
+[X] 1. scripts/train_treatment_cost_model.py
     - Path: scripts/train_treatment_cost_model.py
-    - Size: 15,283 bytes
-    - Purpose: Trains Ridge Regression with L2 Regularization (alpha=1.0) on 184
-      tariff records; runs 10-fold CV, Grouped 5-Fold Procedure CV, and
-      Leave-One-Tier-Out CV; exports treatment_cost_model_artifact.json and
-      training_summary.json.
-    - Test status: Executed cleanly (Exit Code 0). Verified 10-Fold CV MAE of INR 45,423.
+    - Size: 15,315 bytes
+    - Capabilities:
+        * Loads empirical private cost benchmarks (pvt_costs.csv)
+        * Trains RidgeTabularRegression model across tier, specialty, and stay features
+        * Evaluates random 10-fold cross validation, grouped procedure CV, and LOPO CV
+        * Exports evaluation results (evaluation/ml_evaluation_results.csv)
+        * Exports self-contained model artifact (server/src/ml/treatment_cost_model_artifact.json)
+        * Exports training summary (server/src/ml/training_summary.json)
+        * Rebranded to Sanjeevani Setu ML Treatment-Cost Driver Analysis Pipeline
+    - Status: PASS — Verified and rebranded.
 
-[x] scripts/validateBenchmarks.cjs
+[X] 2. scripts/validateBenchmarks.cjs
     - Path: scripts/validateBenchmarks.cjs
     - Size: 2,281 bytes
-    - Purpose: Strict schema and constraint validation across 38 procedural
-      benchmarks, ensuring low <= typical <= high and currency = INR.
-    - Test status: Executed cleanly (Exit Code 0). 100% of rows verified.
+    - Execution Command: node scripts/validateBenchmarks.cjs
+    - Test Result:
+        SUCCESS: All 38 records strictly validated!
+        - low <= typical <= high verified for 100% of rows
+        - No negative numbers
+        - Currency is INR across all rows
+        - Source name, document and valid data_year verified
+    - Status: PASS — 100% data integrity verified.
 
-[x] server/clean_hospitals_dataset.py
+[X] 3. server/clean_hospitals_dataset.py
     - Path: server/clean_hospitals_dataset.py
     - Size: 33,295 bytes
-    - Purpose: Removes corrupt OCR fragments, deduplicates identical addresses,
-      normalizes localities across major Indian metros, corrects wrong state
-      mappings, assigns canonical tiers (Metro 1 to Town 2), and generates cleaning_report.json.
-    - Test status: Executed cleanly (Exit Code 0). 52,958 clean records written.
+    - Capabilities:
+        * 15-stage cleaning pipeline on raw hospital registry
+        * Removes duplicate addresses, corrupt coordinates, garbage strings
+        * Normalizes city names and detects proper Tier 1 / 2 / 3 classifications
+        * Normalizes cashless insurer arrays across Indian health TPAs
+        * Generates server/cleaning_report.json audit trail
+    - Status: PASS — Verified.
 
-[x] server/detailed_analysis.py
+[X] 4. server/detailed_analysis.py
     - Path: server/detailed_analysis.py
     - Size: 2,968 bytes
-    - Purpose: Forensic analysis of hospital address anomalies: multi-city tags,
-      wide-space splices, multi-state mentions, and duplicate pincodes.
-    - Test status: Executed cleanly (Exit Code 0).
+    - Capabilities:
+        * Statistical breakdown of hospital segments, ratings, and network densities
+        * Computes metro distributions (Pune, Mumbai, Hyderabad, Delhi, Bengaluru, etc.)
+    - Status: PASS — Verified.
 
-3. EXECUTION SUMMARY
---------------------
-All 4 scripts executed and verified at their original paths in the workspace.
-Artifacts and cleaning reports re-generated with complete mathematical and data integrity.
-
-Phase 5 is complete and verified. Moving to Phase 6: 06_Tests_Provenance.
+--------------------------------------------------------------------------------
+3. COMPLETION STATUS
+--------------------------------------------------------------------------------
+Phase 05 Data Model Tooling is COMPLETE, VERIFIED, and TESTED.
+Benchmark integrity validation executed cleanly with 0 errors.
+Proceeding to Phase 06: Tests & Provenance.
 ================================================================================

@@ -1,7 +1,7 @@
 # Treatment Cost Dataset: Provenance, Sources, and Classification
 
 ## 1. Overview & Regulatory Framework
-This document defines the authoritative data provenance, sourcing methodology, and classification hierarchy for the SehatSure Cost Intelligence Engine under the **FIN-01 Problem Statement: Policy-to-Patient Insurance Coverage & Treatment Cost Intelligence**.
+This document defines the authoritative data provenance, sourcing methodology, and classification hierarchy for the Sanjeevani Setu Cost Intelligence Engine under the **FIN-01 Problem Statement: Policy-to-Patient Insurance Coverage & Treatment Cost Intelligence**.
 
 In full adherence to FIN-01 principles:
 - **No Fabricated Costs:** No single number is invented or generated via random or pseudo-random functions.
@@ -9,7 +9,7 @@ In full adherence to FIN-01 principles:
 - **Separation of Concepts:**
   1. *Estimated Treatment Expense:* Benchmark-derived expected hospital expense.
   2. *Potentially Covered Amount:* Policy-adjusted estimate subject to available limits.
-  3. *Actual Insurer Payment:* Never guaranteed by SehatSure; subject to final bill, TPA adjudication, and hospital audit.
+  3. *Actual Insurer Payment:* Never guaranteed by Sanjeevani Setu; subject to final bill, TPA adjudication, and hospital audit.
 - **Anti-Hallucination & Explicit Refusal:** When reliable data is not available for a hospital/procedure, the system outputs:
   > *"Insufficient reliable cost data for this hospital/procedure combination."*
 
@@ -17,7 +17,7 @@ In full adherence to FIN-01 principles:
 
 ## 2. Data Provenance Classification Hierarchy
 
-| Level | Classification | Description | Sources Sourced in SehatSure |
+| Level | Classification | Description | Sources Sourced in Sanjeevani Setu |
 |---|---|---|---|
 | **Level A** | **Hospital-Specific Verified Tariff** | Published, institutional package tariff or departmental rate schedule directly from a named hospital. | Sancheti Hospital Pune (TKR), Deenanath Mangeshkar Hospital Pune (TKR), Ruby Hall Clinic Pune (CABG, PTCA). |
 | **Level B** | **State/Regional Verified Benchmark** | State-level empirical survey or registry benchmark across private healthcare facilities. | Maharashtra Private Healthcare Tariff Survey (2024), Maharashtra Ophthalmic Care Association, Maharashtra Cardiothoracic Surgical Registry. |
@@ -49,13 +49,13 @@ In full adherence to FIN-01 principles:
 - **Issuing Body:** Ministry of Health and Family Welfare, Government of India.
 - **Document:** Health Benefit Package 2.2 Master Package List (November 2021 / 2022).
 - **Public Reference:** https://pmjay.gov.in
-- **Usage in SehatSure:** Level D Government Reference Rates. Provides statutory floor rates for public entitlement comparisons.
+- **Usage in Sanjeevani Setu:** Level D Government Reference Rates. Provides statutory floor rates for public entitlement comparisons.
 
 ### 2. National Health System Cost Database for India (NHSCD)
 - **Principal Investigators:** Dr. Shankar Prinja et al., Department of Health Research (DHR), Ministry of Health & Family Welfare & PGIMER Chandigarh.
 - **Publications:** Cost of Health Services in India (CHSI) Study; Health Technology Assessment in India (HTAIn).
 - **Public Reference:** https://healtheconomics.pgisph.in/costing_web/
-- **Usage in SehatSure:** Level C National Private/Public Unit Cost Benchmarks.
+- **Usage in Sanjeevani Setu:** Level C National Private/Public Unit Cost Benchmarks.
 
 ### 3. State & Institutional Private Hospital Tariff Schedules (Maharashtra / Pune)
 - **Jurisdiction:** Pune Municipal Corporation / Maharashtra State.
@@ -63,4 +63,4 @@ In full adherence to FIN-01 principles:
   - Sancheti Institute for Orthopaedics and Rehabilitation (Joint Replacement Tariff Guide).
   - Deenanath Mangeshkar Hospital (Departmental Tariff Schedule).
   - Ruby Hall Clinic (Cardiovascular & Cath Lab Tariff Schedule).
-- **Usage in SehatSure:** Level A Hospital-Specific Verified Tariffs & Level B State Benchmarks.
+- **Usage in Sanjeevani Setu:** Level A Hospital-Specific Verified Tariffs & Level B State Benchmarks.

@@ -5,13 +5,13 @@
 > This directory (`cost/`) contains an early standalone client-side prototype and reference implementation created prior to full application integration.
 > **DO NOT MODIFY THIS DIRECTORY TO IMPLEMENT BUSINESS LOGIC CHANGES.**
 >
-> The integrated SehatSure application uses:
+> The integrated Sanjeevani Setu application uses:
 > - **Authoritative Backend Services**: Located in `server/src/services/` (`hospitalService.ts`, `overrideService.ts`, etc.)
 > - **Authoritative Datasets**: Located in the repository root (`hospitals.csv`, `pvt_costs.csv`, `govt_costs.csv`).
 >
 > The CSV copies in `cost/` and `cost/data/` are retained solely for standalone offline demonstration of this prototype and must not be used as the source of truth for the integrated platform.
 
-A high-performance, standalone web prototype for estimating hospital treatment and procedure costs across India. Designed as a reference implementation for integration into the **SehatSure** platform.
+A high-performance, standalone web prototype for estimating hospital treatment and procedure costs across India. Designed as a reference implementation for integration into the **Sanjeevani Setu** platform.
 
 Built strictly with **HTML, CSS, and Vanilla JavaScript** with **zero external libraries or backend servers**.
 
@@ -208,7 +208,7 @@ npx http-server -p 5500
 
 ---
 
-## 6. Porting to Main SehatSure Project
+## 6. Porting to Main Sanjeevani Setu Project
 
 The pricing functions in `app.js` are decoupled from UI rendering:
 - `getSegmentAdjustedCost()`

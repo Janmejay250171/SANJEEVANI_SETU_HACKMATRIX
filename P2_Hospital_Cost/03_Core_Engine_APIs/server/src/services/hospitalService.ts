@@ -1689,7 +1689,7 @@ export class HospitalService {
     // Sort descending:
     // 1. Verified network hospitals first (network constraint / priority)
     // 2. Specialty Name Relevance score (promotes dedicated facilities when specialty selected)
-    // 3. SehatSure Policy Fit Score (finalScore)
+    // 3. Sanjeevani Setu Policy Fit Score (finalScore)
     // 4. Granular continuous score (differentiates tied finalScore)
     // 5. Financial fit: lower patient payable
     // 6. Higher hospital rating

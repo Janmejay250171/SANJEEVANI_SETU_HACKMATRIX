@@ -1,9 +1,9 @@
 {
-  "model_name": "SehatSure Treatment-Cost Driver Analysis Regressor",
+  "model_name": "Sanjeevani Setu Treatment-Cost Driver Analysis Regressor",
   "model_type": "RidgeTabularRegression",
   "model_version": "1.0.0",
   "framework": "scikit-learn / standalone-export",
-  "training_timestamp": "2026-10-10T05:55:33.384215+00:00",
+  "training_timestamp": "2026-10-08T17:47:25.884342+00:00",
   "dataset_metadata": {
     "source_file": "pvt_costs.csv",
     "file_sha256": "b3a9852cfbd47cabcb9d245dc0003334d6885dcacfe4322c054831924649c7ad",

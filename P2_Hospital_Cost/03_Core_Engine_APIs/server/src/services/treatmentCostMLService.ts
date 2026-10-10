@@ -269,7 +269,7 @@ export class TreatmentCostMLService {
     const limitations = [
       'Model is trained on empirical benchmark tariffs across 8 Indian geographic tiers (pvt_costs.csv), not individual hospital invoice line items.',
       'Estimate reflects expected private hospital surgical expense patterns for the procedure and tier, excluding individual patient medical complications.',
-      'Insurance claim coverage and patient out-of-pocket expenses are calculated solely by SehatSure\'s deterministic financial engine, never by this ML model.'
+      'Insurance claim coverage and patient out-of-pocket expenses are calculated solely by Sanjeevani Setu\'s deterministic financial engine, never by this ML model.'
     ];
 
     const disclaimer = 'Model-derived treatment-cost pattern estimate for informational guidance. Not an institutional tariff quotation or insurer-guaranteed payment.';

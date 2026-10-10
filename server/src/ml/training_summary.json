@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-10-10T05:55:33.384215+00:00",
+  "trained_at": "2026-10-08T17:47:25.884342+00:00",
   "model_type": "RidgeTabularRegression",
   "dataset_rows": 184,
   "10fold_mae": 45423.467142577116,

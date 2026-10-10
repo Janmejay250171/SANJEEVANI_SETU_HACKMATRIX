@@ -47,7 +47,7 @@ app.use('/mock-policies', express.static(path.resolve(__dirname, '../../mock-pol
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'healthy',
-    service: 'SehatSure Backend',
+    service: 'Sanjeevani Setu Backend',
     timestamp: new Date().toISOString()
   });
 });
@@ -130,7 +130,7 @@ async function startServer() {
     }
 
     app.listen(config.port, '0.0.0.0', () => {
-      console.log(`[Server] SehatSure API running on port ${config.port} (0.0.0.0)`);
+      console.log(`[Server] Sanjeevani Setu API running on port ${config.port} (0.0.0.0)`);
       console.log(`[Server] Client origin allowed: ${config.clientUrl}`);
     });
   } catch (err) {

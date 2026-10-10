@@ -22,7 +22,7 @@ describe('Hospital Discovery, Ranking & Bill Breakdown Engine', () => {
     expect(taxonomy.proceduresBySpecialty['Cardiology']).toContain('Angioplasty');
   });
 
-  it('should filter hospitals by city and insurer, and rank by SehatSure formula', () => {
+  it('should filter hospitals by city and insurer, and rank by Sanjeevani Setu formula', () => {
     const mockPolicy: PolicyDocument = {
       _id: 'test_star_policy',
       createdAt: new Date().toISOString(),
@@ -75,7 +75,7 @@ describe('Hospital Discovery, Ranking & Bill Breakdown Engine', () => {
 
     expect(res.hospitals.length).toBeGreaterThan(0);
 
-    // Verify all ranked hospitals have valid SehatSure scores between 0 and 100
+    // Verify all ranked hospitals have valid Sanjeevani Setu scores between 0 and 100
     for (const h of res.hospitals) {
       expect(h.score.finalScore).toBeGreaterThanOrEqual(0);
       expect(h.score.finalScore).toBeLessThanOrEqual(100);

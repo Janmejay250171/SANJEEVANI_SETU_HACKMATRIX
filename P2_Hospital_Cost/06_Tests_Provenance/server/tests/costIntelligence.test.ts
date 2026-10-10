@@ -381,7 +381,7 @@ describe('FIN-01 Cost Intelligence Engine Test Suite', () => {
       expect(est2.unavailableReason).toBe('Select a procedure for cost estimation');
     });
 
-    // Scenario B: Procedure without verified benchmark -> SehatSure refuses to guess
+    // Scenario B: Procedure without verified benchmark -> Sanjeevani Setu refuses to guess
     it('Scenario B: Procedure without verified benchmark refuses to guess', () => {
       const est = costIntelligenceService.estimateCost({
         specialty: 'Cardiology',
@@ -422,8 +422,8 @@ describe('FIN-01 Cost Intelligence Engine Test Suite', () => {
       expect(est.disclaimer).toContain('Statutory government package reference');
     });
 
-    // Scenario D: Unsupported procedure -> "Insufficient reliable cost data. SehatSure will not guess."
-    it('Scenario D: Unsupported procedure returns "Insufficient reliable cost data. SehatSure will not guess."', () => {
+    // Scenario D: Unsupported procedure -> "Insufficient reliable cost data. Sanjeevani Setu will not guess."
+    it('Scenario D: Unsupported procedure returns "Insufficient reliable cost data. Sanjeevani Setu will not guess."', () => {
       const est = costIntelligenceService.estimateCost({
         specialty: 'Neurosurgery',
         procedure: 'Robotic Stereotactic Radiosurgery 7D',
@@ -475,15 +475,15 @@ describe('FIN-01 Cost Intelligence Engine Test Suite', () => {
       expect(est.canonicalProcedureId).toBe('ANGIOGRAPHY');
       expect(est.unavailableReason).toBe('Insufficient reliable cost data for Angiography.');
       expect(est.disclaimer).toBe(
-        'No verified cost benchmark is currently available for Angiography. SehatSure will not substitute an Angioplasty benchmark because the procedures are clinically different.'
+        'No verified cost benchmark is currently available for Angiography. Sanjeevani Setu will not substitute an Angioplasty benchmark because the procedures are clinically different.'
       );
       expect(est.treatmentCostRange.low).toBe(0);
       expect(est.treatmentCostRange.high).toBe(0);
       expect(est.whyThisEstimate).toContain(
-        'Angiography is selected, but SehatSure currently has no verified cost benchmark for this procedure.'
+        'Angiography is selected, but Sanjeevani Setu currently has no verified cost benchmark for this procedure.'
       );
       expect(est.whyThisEstimate).toContain(
-        'No verified cost benchmark is currently available for Angiography. SehatSure will not substitute an Angioplasty benchmark because the procedures are clinically different.'
+        'No verified cost benchmark is currently available for Angiography. Sanjeevani Setu will not substitute an Angioplasty benchmark because the procedures are clinically different.'
       );
     });
 
@@ -805,8 +805,8 @@ describe('FIN-01 Cost Intelligence Engine Test Suite', () => {
       expect(est.potentiallyCoveredRange).toBeNull();
       expect(est.estimatedPatientOopRange).toBeNull();
       expect(est.unavailableReason).toBe('No reliable cost benchmark');
-      expect(est.whyThisEstimate[0]).toContain('SehatSure currently does not have a verified evidence-backed treatment-cost benchmark for EEG');
-      expect(est.whyThisEstimate[1]).toBe("SehatSure will not substitute another procedure's cost.");
+      expect(est.whyThisEstimate[0]).toContain('Sanjeevani Setu currently does not have a verified evidence-backed treatment-cost benchmark for EEG');
+      expect(est.whyThisEstimate[1]).toBe("Sanjeevani Setu will not substitute another procedure's cost.");
     });
 
     it('5. Angiography != Angioplasty (diagnostic vs therapeutic strict separation)', () => {
@@ -1167,7 +1167,7 @@ describe('FIN-01 Cost Intelligence Engine Test Suite', () => {
       });
       expect(est.available).toBe(false);
       expect(est.treatmentCostRange.low).toBe(0);
-      expect(est.whyThisEstimate[1]).toBe("SehatSure will not substitute another procedure's cost.");
+      expect(est.whyThisEstimate[1]).toBe("Sanjeevani Setu will not substitute another procedure's cost.");
     });
 
     // TEST 11: Treatment cost vs potentially covered: no insurerShare = treatmentCost shortcut
@@ -1360,7 +1360,7 @@ describe('FIN-01 Cost Intelligence Engine Test Suite', () => {
       });
       expect(est.available).toBe(false);
       expect(est.treatmentCostRange.typical).toBe(0);
-      expect(est.whyThisEstimate[1]).toBe("SehatSure will not substitute another procedure's cost.");
+      expect(est.whyThisEstimate[1]).toBe("Sanjeevani Setu will not substitute another procedure's cost.");
     });
 
     // TEST 12: Dataset-based network match must not render as "Verified Network Partner" unless authoritative evidence exists.

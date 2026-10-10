@@ -8,7 +8,7 @@ export interface KeywordTiers {
 
 /**
  * Comprehensive mapping of medical specialties to hospital-name keywords.
- * Covers all specialties supported by the SehatSure dataset and clinical domains.
+ * Covers all specialties supported by the Sanjeevani Setu dataset and clinical domains.
  * Keywords are organized by strength:
  * - strong (100 pts): highly specific medical terms and full department/institute titles
  * - medium (75 pts): strongly related anatomical/clinical terms common in dedicated facility names

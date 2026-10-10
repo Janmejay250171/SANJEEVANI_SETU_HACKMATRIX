@@ -1,4 +1,4 @@
-# SehatSure ML-Based Treatment-Cost Driver Analysis (FIN-01 AI Enhancement)
+# Sanjeevani Setu ML-Based Treatment-Cost Driver Analysis (FIN-01 AI Enhancement)
 
 ## 1. Executive Summary & Purpose
 This capability integrates a supervised Machine Learning regression layer to learn empirical treatment cost patterns across Indian private healthcare facilities and provide **mathematically defensible, local cost-driver attributions** and **what-if scenario impact analysis**.

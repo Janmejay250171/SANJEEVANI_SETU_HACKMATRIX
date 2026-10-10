@@ -456,7 +456,7 @@ export class CostIntelligenceService {
 
     if (!normProcedure.matched) {
       const procName = procedure && procedure.trim() ? procedure.trim() : 'this procedure';
-      const unsupportedMsg = `SehatSure currently does not have a verified evidence-backed treatment-cost benchmark for ${procName}.`;
+      const unsupportedMsg = `Sanjeevani Setu currently does not have a verified evidence-backed treatment-cost benchmark for ${procName}.`;
       const mlCostAnalysis = treatmentCostMLService.predictTreatmentCost({
         procedure: procName,
         city,
@@ -489,14 +489,14 @@ export class CostIntelligenceService {
         policyConstraintsApplied: [],
         factors: [
           unsupportedMsg,
-          "SehatSure will not substitute another procedure's cost."
+          "Sanjeevani Setu will not substitute another procedure's cost."
         ],
         provenance: null,
         whyThisEstimate: [
           unsupportedMsg,
-          "SehatSure will not substitute another procedure's cost."
+          "Sanjeevani Setu will not substitute another procedure's cost."
         ],
-        disclaimer: 'SehatSure does not currently have verified evidence to estimate this procedure\'s treatment cost.',
+        disclaimer: 'Sanjeevani Setu does not currently have verified evidence to estimate this procedure\'s treatment cost.',
         mlCostAnalysis
       };
     }
@@ -517,17 +517,17 @@ export class CostIntelligenceService {
       const hasModelEstimate = Boolean(mlCostAnalysis && mlCostAnalysis.status === 'available' && mlCostAnalysis.mlEstimate);
 
       const unsupportedMsg = isAngiography
-        ? 'Angiography is selected, but SehatSure currently has no verified cost benchmark for this procedure.'
+        ? 'Angiography is selected, but Sanjeevani Setu currently has no verified cost benchmark for this procedure.'
         : `Government/authoritative benchmark unavailable for ${procName}.`;
       const unavailableReason = isAngiography
         ? 'Insufficient reliable cost data for Angiography.'
         : 'No reliable cost benchmark';
       const distinctNote = isAngiography
-        ? 'No verified cost benchmark is currently available for Angiography. SehatSure will not substitute an Angioplasty benchmark because the procedures are clinically different.'
-        : "SehatSure will not substitute another procedure's cost.";
+        ? 'No verified cost benchmark is currently available for Angiography. Sanjeevani Setu will not substitute an Angioplasty benchmark because the procedures are clinically different.'
+        : "Sanjeevani Setu will not substitute another procedure's cost.";
       const disclaimer = isAngiography
-        ? 'No verified cost benchmark is currently available for Angiography. SehatSure will not substitute an Angioplasty benchmark because the procedures are clinically different.'
-        : 'SehatSure does not currently have verified evidence to estimate this procedure\'s treatment cost.';
+        ? 'No verified cost benchmark is currently available for Angiography. Sanjeevani Setu will not substitute an Angioplasty benchmark because the procedures are clinically different.'
+        : 'Sanjeevani Setu does not currently have verified evidence to estimate this procedure\'s treatment cost.';
 
       const treatmentCostRange: CostRange = {
         min: 0,
@@ -758,7 +758,7 @@ export class CostIntelligenceService {
       ? statutoryDisclaimer
       : !calculation.coveredReliable
         ? 'Treatment cost benchmark available, but policy-adjusted coverage and out-of-pocket responsibility cannot be reliably estimated with current policy information.'
-        : 'Treatment cost estimated based on published benchmark ranges. Potentially covered amount is a policy-adjusted estimate and cannot be guaranteed by SehatSure.';
+        : 'Treatment cost estimated based on published benchmark ranges. Potentially covered amount is a policy-adjusted estimate and cannot be guaranteed by Sanjeevani Setu.';
 
     return {
       available: true,
@@ -1016,7 +1016,7 @@ export class CostIntelligenceService {
         policyConstraintsApplied,
         roomLimitAppliedNote,
         copayAppliedNote,
-        scenarioExplanation: `Policy-adjusted coverage and patient out-of-pocket responsibility cannot be reliably calculated because essential policy rules are incomplete (${missingInformation.join('; ')}). SehatSure will not assume treatment cost equals insurer payment.`,
+        scenarioExplanation: `Policy-adjusted coverage and patient out-of-pocket responsibility cannot be reliably calculated because essential policy rules are incomplete (${missingInformation.join('; ')}). Sanjeevani Setu will not assume treatment cost equals insurer payment.`,
         stayDays,
         dailyRoomRate,
         referenceRoomCost
