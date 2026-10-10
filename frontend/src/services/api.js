@@ -304,5 +304,22 @@ export async function compareClaimAssessments(claimId, baseAssessmentId = null, 
   return data.data;
 }
 
+export async function askAssistant({ message, history = [], context = {}, language = 'en', token = null }) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch('/api/assistant/chat', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ message, history, context, language })
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to get answer from SehatSure assistant.');
+  }
+  return data.data;
+}
+
 
 

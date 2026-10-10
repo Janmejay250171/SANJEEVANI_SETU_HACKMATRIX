@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User as UserIcon, Menu, X } from 'lucide-react';
+import { User as UserIcon, Menu, X, Mic, Sparkles } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 import { useAuth } from '../context/AuthContext';
 
@@ -15,7 +15,8 @@ export default function Navbar({
   onGoToJourney,
   onGoToClaims,
   onOpenAuth,
-  onOpenProfile
+  onOpenProfile,
+  onOpenAssistant
 }) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -59,6 +60,17 @@ export default function Navbar({
             className={`nav-link-btn ${currentView === 'claims' ? 'active' : ''}`}
           >
             Claim Intelligence
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenAssistant}
+            className="ask-navbar-btn"
+            title="Ask SehatSure AI Voice & Text Assistant"
+          >
+            <Sparkles size={14} className="sparkle-icon" />
+            <Mic size={14} />
+            <span>Ask SehatSure</span>
           </button>
 
           <button
@@ -181,6 +193,17 @@ export default function Navbar({
         <div className="mobile-nav-controls">
           <LanguageSelector compact />
 
+          <button
+            type="button"
+            onClick={onOpenAssistant}
+            className="ask-navbar-btn"
+            style={{ padding: '4px 10px', fontSize: '11px', gap: '5px' }}
+            title="Ask SehatSure Voice Assistant"
+          >
+            <Mic size={13} />
+            <span>Ask AI</span>
+          </button>
+
           {user ? (
             <button
               type="button"
@@ -230,6 +253,25 @@ export default function Navbar({
             className={`mobile-nav-item ${currentView === 'claims' ? 'active' : ''}`}
           >
             Claim Intelligence
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleNavClick(onOpenAssistant)}
+            className="mobile-nav-item"
+            style={{
+              background: '#ECFDF5',
+              border: '1.5px solid #A7F3D0',
+              color: '#0F766E',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <Sparkles size={16} />
+            <Mic size={16} />
+            <span>Ask SehatSure Assistant</span>
           </button>
 
           <button

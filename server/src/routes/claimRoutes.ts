@@ -28,6 +28,7 @@ router.post('/bills/upload', upload.single('file'), uploadBill);
 router.post('/assess', createClaim);
 
 // 2b. FIN-01 Demonstration Scenarios
+router.get('/scenarios', getDemoScenarios);
 router.get('/demo/scenarios', getDemoScenarios);
 
 // 3. Get Claim Assessment State

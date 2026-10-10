@@ -816,6 +816,13 @@ export class HospitalService {
     return this.allCities;
   }
 
+  public getHospitals(city?: string): HospitalRecord[] {
+    if (city) {
+      return this.hospitalsByCity.get(normalize(city)) || [];
+    }
+    return this.hospitals;
+  }
+
   public getTaxonomy(): {
     specialties: string[];
     proceduresBySpecialty: Record<string, string[]>;

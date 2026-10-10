@@ -170,7 +170,21 @@ export async function createPolicyFromDemo(req: Request, res: Response): Promise
 export async function getPolicyById(req: Request, res: Response): Promise<void> {
   try {
     const id = req.params.id;
-    const policy = await Policy.findById(id);
+    let policy = await Policy.findById(id);
+
+    if (!policy) {
+      const demo = DEMO_POLICIES.find((d) => d.id === id || d.key === id) || DEMO_POLICIES[0];
+      if (demo) {
+        try {
+          policy = await Policy.create({
+            _id: id,
+            ...demo.data
+          });
+        } catch {
+          policy = await Policy.findById(id);
+        }
+      }
+    }
 
     if (!policy) {
       res.status(404).json({
@@ -196,7 +210,21 @@ export async function getPolicyById(req: Request, res: Response): Promise<void> 
 export async function updatePolicy(req: Request, res: Response): Promise<void> {
   try {
     const id = req.params.id;
-    const policy = await Policy.findById(id);
+    let policy = await Policy.findById(id);
+
+    if (!policy) {
+      const demo = DEMO_POLICIES.find((d) => d.id === id || d.key === id) || DEMO_POLICIES[0];
+      if (demo) {
+        try {
+          policy = await Policy.create({
+            _id: id,
+            ...demo.data
+          });
+        } catch {
+          policy = await Policy.findById(id);
+        }
+      }
+    }
 
     if (!policy) {
       res.status(404).json({

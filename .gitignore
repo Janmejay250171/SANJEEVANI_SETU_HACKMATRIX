@@ -49,3 +49,5 @@ scratch/
 
 __pycache__/
 *.pyc
+~$*.docx
+~$*

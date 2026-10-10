@@ -8,6 +8,8 @@ import HowItWorksPage from './pages/HowItWorksPage';
 import ClaimAdjudicationPage from './pages/ClaimAdjudicationPage';
 import AuthModal from './components/AuthModal';
 import ProfileModal from './components/ProfileModal';
+import AskSehatSureDrawer from './components/Assistant/AskSehatSureDrawer';
+import { Mic, Sparkles } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
 import { getPolicy } from './services/api';
 
@@ -19,6 +21,8 @@ export default function App() {
   const [authModalMode, setAuthModalMode] = useState('login');
   const [authModalPrompt, setAuthModalPrompt] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [discoveryContext, setDiscoveryContext] = useState(null);
 
   // Restore session from localStorage if available
   const [currentView, setCurrentView] = useState(() => {
@@ -271,6 +275,7 @@ export default function App() {
         onGoToClaims={handleGoToClaims}
         onOpenAuth={(mode) => handleOpenAuth(mode)}
         onOpenProfile={handleOpenProfile}
+        onOpenAssistant={() => setIsAssistantOpen(true)}
       />
 
       <div className="page">
@@ -292,6 +297,7 @@ export default function App() {
                 policy={activePolicy}
                 onPolicyConfirmed={handlePolicyConfirmed}
                 onBackToUpload={handleGoHome}
+                onOpenAssistant={() => setIsAssistantOpen(true)}
               />
             )}
 
@@ -303,6 +309,7 @@ export default function App() {
                 onTrackJourney={handleTrackCareJourney}
                 onRequireAuth={() => handleOpenAuth('signup', 'Please sign up or log in to bookmark hospitals.')}
                 onViewMethodology={() => setCurrentView('how-it-works')}
+                onDiscoveryContextChange={setDiscoveryContext}
               />
             )}
 
@@ -356,6 +363,32 @@ export default function App() {
         onTrackJourneyWithHospital={handleTrackJourneyFromProfile}
         onDeletePolicy={handleDeletePolicyFromProfile}
       />
+
+      {/* Ask SehatSure Voice & Text AI Assistant Drawer */}
+      <AskSehatSureDrawer
+        isOpen={isAssistantOpen}
+        onClose={() => setIsAssistantOpen(false)}
+        currentView={currentView}
+        activePolicy={activePolicy}
+        journeyHospital={journeyHospital}
+        discoveryContext={discoveryContext}
+        token={user?.token || null}
+      />
+
+      {/* Floating Assistant Launcher Button */}
+      {!isAssistantOpen && (
+        <button
+          type="button"
+          onClick={() => setIsAssistantOpen(true)}
+          className="ask-floating-btn"
+          title="Open Ask SehatSure Voice Assistant"
+          aria-label="Open Ask SehatSure Voice Assistant"
+        >
+          <Sparkles size={16} />
+          <Mic size={16} />
+          <span>Ask SehatSure</span>
+        </button>
+      )}
     </div>
   );
 }

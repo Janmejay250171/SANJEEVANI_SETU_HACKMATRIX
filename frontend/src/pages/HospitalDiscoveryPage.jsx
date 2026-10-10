@@ -129,7 +129,8 @@ export default function HospitalDiscoveryPage({
   onResetPolicy,
   onTrackJourney,
   onRequireAuth,
-  onViewMethodology
+  onViewMethodology,
+  onDiscoveryContextChange
 }) {
   const { t } = useTranslation();
   const { user, isHospitalSaved, toggleSaveHospital } = useAuth();
@@ -797,6 +798,42 @@ export default function HospitalDiscoveryPage({
     selectedProcedure,
     selectedSpecialty,
     sortBy,
+    policy?.insurer
+  ]);
+
+  // Synchronize Discovery context (selected procedure, city, top spotlight hospitals) with global assistant
+  useEffect(() => {
+    if (typeof onDiscoveryContextChange === 'function') {
+      const topHospitals = (top3SpotlightHospitals || []).map((item, idx) => ({
+        name: item.hospital?.hospital_name,
+        locality: item.localityLabel || item.hospital?.address?.split(',')[0] || selectedCity || 'Pune',
+        networkStatus: item.networkInfo?.networkStatus === 'verified'
+          ? `100% Cashless Covered (${policy?.insurer || 'In-Network'})`
+          : 'In-Network Cashless',
+        patientPayable: item.score?.patientPayable ?? item.estimate?.patientPayable ?? 0,
+        score: Math.round(Number(item.score?.granularScore ?? item.score?.finalScore ?? 96)),
+        rank: idx === 0 ? '1' : idx === 1 ? '2' : '3',
+        cashless: true
+      }));
+
+      onDiscoveryContextChange({
+        city: selectedCity || 'Pune',
+        specialty: selectedSpecialty,
+        procedureName: selectedProcedure,
+        roomCategory: selectedRoom,
+        mode: sortBy,
+        recommendedHospitals: topHospitals,
+        guidanceText: nearestGuidance?.summary || nearestGuidance?.recommendation || ''
+      });
+    }
+  }, [
+    selectedCity,
+    selectedSpecialty,
+    selectedProcedure,
+    selectedRoom,
+    sortBy,
+    top3SpotlightHospitals.map((item) => item?.hospital?.hospital_name).join(','),
+    nearestGuidance?.summary,
     policy?.insurer
   ]);
 
