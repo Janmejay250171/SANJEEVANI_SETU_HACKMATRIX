@@ -1,0 +1,60 @@
+question_id,policy_id,category,question,expected_condition,actual_answer,citation_present,abstention_correct,semantic_pass
+RAG_01,pol_demo_hdfc,Factual_SI,"What is my sum insured?","Exact SI ₹5,00,000","Your total Sum Insured under the uploaded policy schedule is **₹5,00,000** (Corporate Family Floater",1,1,1
+RAG_02,pol_demo_hdfc,Numeric_Room,"What is my room rent limit?","1% of SI / ₹5,000 daily","Your room-rent eligibility is **1% of Sum Insured/day (₹5,000/day for your ₹5,00,000 sum insured)**.",1,1,1
+RAG_03,pol_demo_hdfc,Factual_Copay,"Do I have a co-payment?","0% / Nil co-payment","You have a **0% (Nil) co-payment** across all network hospitals under this policy. You are not requi",1,1,1
+RAG_04,pol_demo_hdfc,Abstention_Unstated,"What is my non-network co-payment?","Abstains on unstated term","⚠️ **Not specified in the uploaded policy.**
+
+The policy establishes a 0% co-payment provision for n",1,1,1
+RAG_05,pol_demo_star,Factual_SI,"What is my sum insured?","Exact SI ₹3,00,000","Your total Sum Insured under the uploaded policy schedule is **₹3,00,000** (Annual Coverage Limit). ",1,1,1
+RAG_06,pol_demo_star,Numeric_Room,"What is my room rent limit?","Exact ₹3,000 per day","Your room-rent eligibility is **₹3,000/day**.
+
+⚠️ **Proportionate Deduction Clause:** If you volunta",1,1,1
+RAG_07,pol_demo_star,Factual_Copay,"What is my copay?","Exact 10% co-payment","Your base co-payment is **10%**. You will pay 10% of each admissible hospitalization claim out-of-po",1,1,1
+RAG_08,pol_demo_star,Sublimit_Knee,"Is there a sublimit on Knee Replacement?","Sublimit ₹1,50,000","Based on the uploaded policy document, **Knee Replacement surgery is covered** under your general in",1,1,1
+RAG_09,pol_demo_pmjay,Statutory_Room,"What is my room rent limit under PMJAY?","No room rent ceiling","Your room-rent eligibility is **No Room Rent Capping (Unlimited)**.
+
+No proportionate deduction clau",1,1,1
+RAG_10,pol_demo_pmjay,Statutory_Copay,"Do I have to pay copay in PMJAY?","0% co-pay / cashless","You have a **0% (Nil) co-payment** across all network hospitals under this policy. You are not requi",1,1,1
+RAG_11,pol_demo_esi,Statutory_SI,"What is my sum insured under ESI?","Unlimited statutory cover","Your policy has **Unlimited Statutory Cover** under the ESI (Employees State Insurance) statutory fr",1,1,1
+RAG_12,pol_demo_hdfc,Exclusions,"Are cosmetic surgeries covered?","Cosmetic surgery excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1
+RAG_13,pol_demo_hdfc,Cost_Benchmark,"How much does Cataract surgery cost under my policy?","Verified tariff range","Based on verified evidence from **National Health Authority (NHA) AB-PMJAY HBP 2.2 (2022)**, the est",1,1,1
+RAG_14,pol_demo_hdfc,Cost_Refusal,"What is the cost of EEG?","Refusal on unsupported EEG","⚠️ **NO RELIABLE COST BENCHMARK**
+
+SehatSure currently does not have a verified evidence-backed trea",1,1,1
+RAG_15,pol_demo_star,Waiting_PED,"What is the waiting period for pre-existing disease?","3 years waiting period","Here are the waiting periods established in your policy:
+
+• **Initial Waiting Period:** 30 days
+• **",1,1,1
+RAG_16,pol_demo_star,Adversarial_Coverage,"Does my policy cover aesthetic dental whitening package #16?","Elective dental/aesthetic excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1
+RAG_17,pol_demo_hdfc,Cross_Section,"What happens if I stay in a room costing ₹8,000 per day?","Proportionate deduction explained","If you choose a room priced at **₹8,000/day**, your daily room charge exceeds your extracted room-re",1,1,1
+RAG_18,pol_demo_star,Adversarial_Coverage,"Does my policy cover aesthetic dental whitening package #18?","Elective dental/aesthetic excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1
+RAG_19,pol_demo_hdfc,Cross_Section,"What happens if I stay in a room costing ₹8,000 per day?","Proportionate deduction explained","If you choose a room priced at **₹8,000/day**, your daily room charge exceeds your extracted room-re",1,1,1
+RAG_20,pol_demo_star,Adversarial_Coverage,"Does my policy cover aesthetic dental whitening package #20?","Elective dental/aesthetic excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1
+RAG_21,pol_demo_hdfc,Cross_Section,"What happens if I stay in a room costing ₹8,000 per day?","Proportionate deduction explained","If you choose a room priced at **₹8,000/day**, your daily room charge exceeds your extracted room-re",1,1,1
+RAG_22,pol_demo_star,Adversarial_Coverage,"Does my policy cover aesthetic dental whitening package #22?","Elective dental/aesthetic excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1
+RAG_23,pol_demo_hdfc,Cross_Section,"What happens if I stay in a room costing ₹8,000 per day?","Proportionate deduction explained","If you choose a room priced at **₹8,000/day**, your daily room charge exceeds your extracted room-re",1,1,1
+RAG_24,pol_demo_star,Adversarial_Coverage,"Does my policy cover aesthetic dental whitening package #24?","Elective dental/aesthetic excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1
+RAG_25,pol_demo_hdfc,Cross_Section,"What happens if I stay in a room costing ₹8,000 per day?","Proportionate deduction explained","If you choose a room priced at **₹8,000/day**, your daily room charge exceeds your extracted room-re",1,1,1
+RAG_26,pol_demo_star,Adversarial_Coverage,"Does my policy cover aesthetic dental whitening package #26?","Elective dental/aesthetic excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1
+RAG_27,pol_demo_hdfc,Cross_Section,"What happens if I stay in a room costing ₹8,000 per day?","Proportionate deduction explained","If you choose a room priced at **₹8,000/day**, your daily room charge exceeds your extracted room-re",1,1,1
+RAG_28,pol_demo_star,Adversarial_Coverage,"Does my policy cover aesthetic dental whitening package #28?","Elective dental/aesthetic excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1
+RAG_29,pol_demo_hdfc,Cross_Section,"What happens if I stay in a room costing ₹8,000 per day?","Proportionate deduction explained","If you choose a room priced at **₹8,000/day**, your daily room charge exceeds your extracted room-re",1,1,1
+RAG_30,pol_demo_star,Adversarial_Coverage,"Does my policy cover aesthetic dental whitening package #30?","Elective dental/aesthetic excluded","🚫 **This procedure is EXCLUDED under your policy.**
+
+Your policy explicitly excludes cosmetic, aest",1,1,1

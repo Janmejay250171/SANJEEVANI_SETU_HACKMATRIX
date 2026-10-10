@@ -1,0 +1,34 @@
+{
+  "total_original": 52978,
+  "garbage_removed": 18,
+  "duplicate_addresses_removed": 2,
+  "total_removed": 20,
+  "total_modified": 172,
+  "tiers_corrected": 6,
+  "final_clean_records": 52958,
+  "top_tier_corrections": {
+    "jaipur": 5,
+    "pune": 1
+  },
+  "metro_city_counts": {
+    "pune": 1169,
+    "mumbai": 1138,
+    "hyderabad": 1094,
+    "delhi": 1076,
+    "bengaluru": 986,
+    "chennai": 811,
+    "patna": 691,
+    "ahmedabad": 638,
+    "jaipur": 577,
+    "surat": 517,
+    "nagpur": 482,
+    "agra": 467,
+    "vadodara": 400,
+    "lucknow": 380,
+    "bhopal": 368,
+    "kolkata": 330,
+    "kanpur": 325,
+    "indore": 229,
+    "chandigarh": 124
+  }
+}
