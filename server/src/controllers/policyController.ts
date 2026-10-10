@@ -10,6 +10,11 @@ import { applySchemeOverrides, applyTier2Defaults } from '../services/overrideSe
 import { getMissingTier1Fields, getLowConfidenceFields } from '../schemas/policySchema.js';
 import { DEMO_POLICIES } from '../utils/demoData.js';
 import { normalizeExtractionPayload, normalizePartialPolicyUpdate } from '../services/normalizerService.js';
+import { policyDocumentIngestionService } from '../services/policyDocumentIngestionService.js';
+import { policySegmentationEngine } from '../services/policySegmentationEngine.js';
+import { policyEvidenceValidator } from '../services/policyEvidenceValidator.js';
+import { documentStorageService } from '../services/documentStorageService.js';
+import { getUserFromRequest } from './authController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,9 +51,39 @@ export async function uploadPolicy(req: Request, res: Response): Promise<void> {
     const savedPdfPath = path.join(uploadsDir, `${policyId}.pdf`);
     fs.writeFileSync(savedPdfPath, file.buffer);
 
-    // AI Extraction
+    // Phase 3: Multi-Page Document Ingestion & Structural Analysis
+    const ingestionResult = await policyDocumentIngestionService.ingestPolicyPdf(file.buffer, file.originalname);
+    const segments = policySegmentationEngine.segmentDocument(ingestionResult);
+    const consolidated = policySegmentationEngine.consolidateExtraction(ingestionResult, segments);
+
+    // AI Extraction (with fallback/enhancement from segmentation engine)
     const extraction = await geminiService.extractPolicy(file.buffer);
-    const extractedData = extraction.data;
+    const extractedData = { ...extraction.data };
+
+    // If long document extraction from segmentation engine found verified fields not captured by single-prompt AI, merge them
+    for (const [key, val] of Object.entries(consolidated.policyData)) {
+      if ((extractedData as any)[key] === null || (extractedData as any)[key] === undefined) {
+        (extractedData as any)[key] = val;
+      }
+    }
+
+    // Merge sourceSnippets and confidence with exact page citations
+    if (!extractedData.sourceSnippets) extractedData.sourceSnippets = {};
+    if (!extractedData.confidence) extractedData.confidence = {};
+    if (!extractedData.sourceStatuses) extractedData.sourceStatuses = {};
+
+    for (const [key, ev] of Object.entries(consolidated.fieldEvidenceMap)) {
+      if (!extractedData.sourceSnippets[key]) {
+        extractedData.sourceSnippets[key] = `[Page ${ev.pageNumber} | ${ev.clauseNumber || ev.segmentType}] ${ev.evidenceExcerpt}`;
+      }
+      if (!extractedData.confidence[key]) {
+        extractedData.confidence[key] = ev.confidence;
+      }
+      extractedData.sourceStatuses[key] = 'document_stated';
+    }
+
+    // Phase 3: Strict Evidence Validation Audit
+    const evidenceAudit = policyEvidenceValidator.auditPolicyEvidence(ingestionResult, consolidated);
 
     // Apply Scheme Overrides (PM-JAY, ESI)
     applySchemeOverrides(extractedData);
@@ -68,11 +103,45 @@ export async function uploadPolicy(req: Request, res: Response): Promise<void> {
     const missingRequired = getMissingTier1Fields(policyJson);
     const lowConfidence = getLowConfidenceFields(policyJson);
 
-    if (extraction.isPartialFallback) {
+    // Priority 5: Durably persist original uploaded policy PDF with SHA-256 integrity and historical snapshot
+    let savedDocumentId: string | null = null;
+    let savedDocumentSha256: string | null = null;
+    try {
+      const authUser = await getUserFromRequest(req);
+      const savedDoc = await documentStorageService.saveDocument({
+        fileBuffer: file.buffer,
+        originalFilename: file.originalname,
+        mimeType: file.mimetype || 'application/pdf',
+        category: 'policy',
+        userId: authUser?._id?.toString() || 'anonymous',
+        relatedEntityId: policyId,
+        analysisSnapshot: policyJson,
+        modelVersion: '1.0.0'
+      });
+      savedDocumentId = savedDoc.documentId;
+      savedDocumentSha256 = savedDoc.contentHashSha256;
+
+      if (authUser && !authUser.savedPolicyIds.includes(policyId)) {
+        authUser.savedPolicyIds.push(policyId);
+        await authUser.save();
+      }
+    } catch (docSaveErr) {
+      console.warn('[PolicyController] Failed to persist durable original document:', docSaveErr);
+    }
+
+    if (extraction.isPartialFallback && consolidated.segmentsProcessed === 0) {
       res.status(422).json({
         policy: policyJson,
         missingRequired,
         lowConfidence,
+        evidenceAudit,
+        savedDocumentId,
+        documentMetadata: {
+          totalPages: ingestionResult.totalPages,
+          readablePages: ingestionResult.readablePagesCount,
+          documentType: ingestionResult.documentType,
+          contentHash: savedDocumentSha256 || ingestionResult.contentHashSha256
+        },
         warning: 'AI extraction had issues. Please review and fill in the missing details manually.',
         details: extraction.validationError
       });
@@ -82,7 +151,15 @@ export async function uploadPolicy(req: Request, res: Response): Promise<void> {
     res.status(200).json({
       policy: policyJson,
       missingRequired,
-      lowConfidence
+      lowConfidence,
+      evidenceAudit,
+      savedDocumentId,
+      documentMetadata: {
+        totalPages: ingestionResult.totalPages,
+        readablePages: ingestionResult.readablePagesCount,
+        documentType: ingestionResult.documentType,
+        contentHash: savedDocumentSha256 || ingestionResult.contentHashSha256
+      }
     });
   } catch (err: any) {
     console.error('[Upload Policy Error]:', err);

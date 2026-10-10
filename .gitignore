@@ -21,6 +21,8 @@ frontend/.env
 # Uploaded documents & dynamic files
 uploads/
 */uploads/
+storage/
+*/storage/
 mock-policies/*.pdf.tmp
 
 # Large backups and archives

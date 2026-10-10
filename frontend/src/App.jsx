@@ -8,6 +8,7 @@ import HowItWorksPage from './pages/HowItWorksPage';
 import ClaimAdjudicationPage from './pages/ClaimAdjudicationPage';
 import AuthModal from './components/AuthModal';
 import ProfileModal from './components/ProfileModal';
+import SavedDocumentsModal from './components/SavedDocumentsModal';
 import AskSehatSureDrawer from './components/Assistant/AskSehatSureDrawer';
 import { Mic, Sparkles } from 'lucide-react';
 import { useAuth } from './context/AuthContext';
@@ -21,6 +22,7 @@ export default function App() {
   const [authModalMode, setAuthModalMode] = useState('login');
   const [authModalPrompt, setAuthModalPrompt] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSavedDocsOpen, setIsSavedDocsOpen] = useState(false);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [discoveryContext, setDiscoveryContext] = useState(null);
 
@@ -276,6 +278,7 @@ export default function App() {
         onOpenAuth={(mode) => handleOpenAuth(mode)}
         onOpenProfile={handleOpenProfile}
         onOpenAssistant={() => setIsAssistantOpen(true)}
+        onOpenSavedDocuments={() => setIsSavedDocsOpen(true)}
       />
 
       <div className="page">
@@ -362,6 +365,17 @@ export default function App() {
         }}
         onTrackJourneyWithHospital={handleTrackJourneyFromProfile}
         onDeletePolicy={handleDeletePolicyFromProfile}
+        onOpenSavedDocuments={() => setIsSavedDocsOpen(true)}
+      />
+
+      {/* Priority 5: Saved Documents & Historical Analysis Retrieval Modal */}
+      <SavedDocumentsModal
+        isOpen={isSavedDocsOpen}
+        onClose={() => setIsSavedDocsOpen(false)}
+        onReopenPolicy={handlePolicyLoaded}
+        onReopenBill={() => {
+          setCurrentView('claims');
+        }}
       />
 
       {/* Ask SehatSure Voice & Text AI Assistant Drawer */}

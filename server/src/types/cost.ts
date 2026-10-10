@@ -17,6 +17,21 @@ export type CostSourceStatus =
   | 'VALUE_NOT_SUPPORTED'
   | 'TRANSFORMATION_NOT_VERIFIED';
 
+export type TreatmentPriceClassification =
+  | 'actual_hospital_tariff'
+  | 'hospital_package_price'
+  | 'government_package_rate'
+  | 'regional_benchmark'
+  | 'national_benchmark'
+  | 'historical_observation'
+  | 'unverified_price';
+
+export interface TreatmentPricePackageTerms {
+  inclusions: string[];
+  exclusions: string[];
+  conditions: string[];
+}
+
 export interface CostBenchmarkRecord {
   cost_id: string;
   canonical_procedure_id: string;
@@ -24,6 +39,9 @@ export interface CostBenchmarkRecord {
   specialty: string;
   hospital_id: string;
   hospital_name: string;
+  branch_id?: string;
+  branch_name?: string;
+  hospital_type?: 'Private' | 'Government' | string;
   city: string;
   state: string;
   room_category: string;
@@ -32,6 +50,8 @@ export interface CostBenchmarkRecord {
   cost_high: number;
   reference_rate?: number;
   currency: string;
+  unit?: string;
+  price_classification?: TreatmentPriceClassification;
   benchmark_level: BenchmarkLevel;
   source_type: string;
   source_name: string;
@@ -41,12 +61,14 @@ export interface CostBenchmarkRecord {
   source_table?: string;
   data_year: number;
   source_date: string;
+  date_verified?: string;
   sample_size?: number;
   confidence_level: CostConfidenceLevel;
   notes: string;
   source_status?: CostSourceStatus;
   active?: boolean;
   exact_package_rate?: number;
+  package_terms?: TreatmentPricePackageTerms;
   // Backward compatibility aliases
   procedure: string;
   procedure_code: string;

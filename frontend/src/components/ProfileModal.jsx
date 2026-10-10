@@ -24,7 +24,8 @@ export default function ProfileModal({
   onGoToUpload,
   onSelectHospitalForDiscovery,
   onTrackJourneyWithHospital,
-  onDeletePolicy
+  onDeletePolicy,
+  onOpenSavedDocuments
 }) {
   const { user, logout, savedHospitals, userPolicies, toggleSaveHospital, removePolicy } = useAuth();
   const [activeTab, setActiveTab] = useState('policies'); // 'policies' or 'hospitals'
@@ -261,6 +262,35 @@ export default function ProfileModal({
               {savedHospitals.length}
             </span>
           </button>
+
+          {onOpenSavedDocuments && (
+            <button
+              type="button"
+              style={{
+                flex: 1,
+                padding: '11px 16px',
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--color-primary)',
+                fontWeight: 700,
+                fontSize: '14px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.15s ease'
+              }}
+              onClick={() => {
+                onClose();
+                onOpenSavedDocuments();
+              }}
+            >
+              <FileText size={17} />
+              <span>Saved Documents Vault</span>
+            </button>
+          )}
         </div>
 
         {/* Tab Content (Scrollable) */}

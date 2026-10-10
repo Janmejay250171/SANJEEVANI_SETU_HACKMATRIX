@@ -301,6 +301,7 @@ export const SPECIALTY_ALIASES: Record<string, string> = {
   // Cardiology
   'cardiology': 'Cardiology',
   'cardiac': 'Cardiology',
+  'cardio': 'Cardiology',
   'cardiac care': 'Cardiology',
   'heart': 'Cardiology',
 

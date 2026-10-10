@@ -1,0 +1,218 @@
+{
+  "syntheticDisclaimer": "SYNTHETIC TEST DATA ONLY — NOT AN ACTUAL INSURER-ISSUED POLICY CONTRACT. FOR TESTING & BENCHMARKING ONLY.",
+  "documentMetadata": {
+    "documentId": "synth_doc_arogya_bharat_45pp",
+    "fileName": "synthetic_comprehensive_health_policy_45_pages.pdf",
+    "totalPages": 45,
+    "insurer": "Arogya Bharat General Insurance Co. Ltd.",
+    "insurerAliases": ["Arogya Bharat", "ABGIC"],
+    "planName": "Comprehensive Swasthya Raksha Platinum Plan",
+    "policyType": "floater",
+    "policyNumber": "AB-SWAS-2026-994821",
+    "uin": "ABGHLIP26099V012627",
+    "policyPeriod": {
+      "effectiveFrom": "2026-04-01",
+      "effectiveTo": "2027-03-31"
+    },
+    "zone": "Tier 1 (Mumbai MMR / Bengaluru)",
+    "insuredMembers": [
+      { "name": "Aditya Verma", "age": 42, "relation": "Self" },
+      { "name": "Pooja Verma", "age": 39, "relation": "Spouse" },
+      { "name": "Arjun Verma", "age": 12, "relation": "Child" }
+    ]
+  },
+  "coreFinancialGroundTruth": {
+    "basicSumInsured": 1000000,
+    "cumulativeBonus": 100000,
+    "totalAvailableCover": 1100000,
+    "compulsoryDeductible": 25000,
+    "compulsoryDeductiblePage": 2,
+    "compulsoryDeductibleClause": "Clause S.3",
+    "networkCopayPercent": 0,
+    "networkCopayPage": 38,
+    "networkCopayClause": "Clause 10.1",
+    "nonNetworkCopayPercent": 20,
+    "nonNetworkCopayPage": 39,
+    "nonNetworkCopayClause": "Clause 10.2",
+    "roomRentLimit": {
+      "type": "percent",
+      "percentValue": 1,
+      "dailyLimitRupees": 10000,
+      "pageNumber": 7,
+      "clause": "Clause 2.1",
+      "exactSnippet": "Room rent boarding and nursing charges capped at 1% of Sum Insured per day (Rs. 10,000 per day for Single Standard AC Room)"
+    },
+    "icuLimit": {
+      "type": "percent",
+      "percentValue": 2,
+      "dailyLimitRupees": 20000,
+      "pageNumber": 8,
+      "clause": "Clause 2.2",
+      "exactSnippet": "Intensive Care Unit (ICU) and Intensive Cardiac Care Unit (ICCU) charges capped at 2% of Sum Insured per day (Rs. 20,000 per day)"
+    },
+    "proportionateDeduction": {
+      "active": true,
+      "pageNumber": 9,
+      "clause": "Clause 2.3",
+      "associatedMedicalExpenses": [
+        "SURGEON_CONSULTATION",
+        "OT_CHARGES",
+        "NURSING",
+        "DAYCARE_PACKAGE"
+      ],
+      "exemptCategories": [
+        "MEDICINES_PHARMACY",
+        "INVESTIGATIONS_DIAGNOSTICS",
+        "IMPLANT_PROSTHETICS",
+        "AMBULANCE"
+      ]
+    },
+    "subLimits": {
+      "cataract": {
+        "limitRupees": 45000,
+        "pageNumber": 19,
+        "clause": "Clause 5.1",
+        "condition": "Per eye, maximum 2 eyes per policy period"
+      },
+      "kneeReplacement": {
+        "limitRupees": 180000,
+        "pageNumber": 20,
+        "clause": "Clause 5.2",
+        "condition": "Per knee joint replacement"
+      },
+      "hernia": {
+        "limitRupees": 85000,
+        "pageNumber": 20,
+        "clause": "Clause 5.3",
+        "condition": "Inguinal, umbilical or ventral hernioplasty"
+      },
+      "cholecystectomy": {
+        "limitRupees": 95000,
+        "pageNumber": 21,
+        "clause": "Clause 5.4",
+        "condition": "Laparoscopic or open gall bladder removal"
+      },
+      "kidneyStone": {
+        "limitRupees": 60000,
+        "pageNumber": 21,
+        "clause": "Clause 5.5",
+        "condition": "ESWL / PCNL / URSL lithotripsy"
+      },
+      "appendectomy": {
+        "limitRupees": 50000,
+        "pageNumber": 21,
+        "clause": "Clause 5.6",
+        "condition": "Laparoscopic appendectomy for acute appendicitis"
+      }
+    },
+    "ambulanceAllowance": {
+      "roadAmbulanceRupees": 3000,
+      "airAmbulanceRupees": 250000,
+      "pageNumber": 35,
+      "clause": "Clause 9.1"
+    },
+    "restorationBenefit": {
+      "active": true,
+      "percentage": 100,
+      "pageNumber": 36,
+      "clause": "Clause 9.3",
+      "condition": "100% of Basic Sum Insured restored once per policy year for unrelated illness"
+    },
+    "preHospitalizationDays": 60,
+    "postHospitalizationDays": 90,
+    "prePostHospitalizationPage": 36,
+    "prePostHospitalizationClause": "Clause 9.4"
+  },
+  "waitingPeriodsGroundTruth": {
+    "initialWaitingDays": 30,
+    "initialWaitingPage": 23,
+    "initialWaitingClause": "Clause 6.1",
+    "specificIllnessWaitingMonths": 24,
+    "specificIllnessPage": 24,
+    "specificIllnessClause": "Clause 6.2",
+    "preExistingDiseaseWaitingMonths": 36,
+    "preExistingDiseasePage": 25,
+    "preExistingDiseaseClause": "Clause 6.3",
+    "maternityWaitingMonths": 24,
+    "maternityPage": 26,
+    "maternityClause": "Clause 6.4"
+  },
+  "exclusionsGroundTruth": {
+    "statutoryConsumablesSchedule": {
+      "scheduleName": "IRDAI Annexure I Non-Payable Items",
+      "pageNumber": 32,
+      "clause": "Section 8 Clause 8.1",
+      "itemsExcluded": [
+        "Disposable Examination Gloves",
+        "PPE Kits",
+        "Face Shields",
+        "Administrative Registration Fee",
+        "Admission Kit",
+        "Discharge Summary Printing Charge",
+        "Thermometer",
+        "Cotton Buds",
+        "Crepe Bandage",
+        "Hand Sanitizer Bottles"
+      ]
+    },
+    "permanentExclusionsList": [
+      { "code": "Code-Excl01", "name": "Pre-Existing Diseases Waiting", "page": 27 },
+      { "code": "Code-Excl02", "name": "Specified Disease/Procedure Waiting", "page": 27 },
+      { "code": "Code-Excl03", "name": "First 30 Days Waiting", "page": 27 },
+      { "code": "Code-Excl04", "name": "Investigation & Evaluation Only", "page": 28 },
+      { "code": "Code-Excl05", "name": "Rest Cure & Rehabilitation", "page": 28 },
+      { "code": "Code-Excl06", "name": "Obesity & Weight Control", "page": 28 },
+      { "code": "Code-Excl07", "name": "Cosmetic or Plastic Surgery", "page": 29 },
+      { "code": "Code-Excl08", "name": "Hazardous or Adventure Sports", "page": 29 },
+      { "code": "Code-Excl09", "name": "Breach of Law", "page": 29 },
+      { "code": "Code-Excl10", "name": "Excluded Providers / Unempanelled", "page": 30 },
+      { "code": "Code-Excl11", "name": "Alcohol & Substance Abuse", "page": 30 },
+      { "code": "Code-Excl12", "name": "Unproven Treatments", "page": 30 },
+      { "code": "Code-Excl13", "name": "Maternity Expenses", "page": 31 },
+      { "code": "Code-Excl14", "name": "Sterility and Infertility", "page": 31 },
+      { "code": "Code-Excl15", "name": "Refractive Error Correction", "page": 31 }
+    ]
+  },
+  "endorsementsGroundTruth": [
+    {
+      "endorsementId": "END-AB-2026-RIDER01",
+      "title": "Comprehensive Swasthya Raksha Platinum Endorsement Amendment Rider 1",
+      "pageNumber": 43,
+      "clause": "Endorsement Clause E.1",
+      "effectiveFrom": "2026-10-01",
+      "amendments": [
+        {
+          "target": "subLimits.cataract",
+          "originalValue": 45000,
+          "amendedValue": 60000,
+          "effectiveFrom": "2026-10-01",
+          "description": "Cataract sub-limit enhanced to Rs. 60,000 per eye for admissions on or after 2026-10-01."
+        },
+        {
+          "target": "copayNonNetwork",
+          "originalValue": 20,
+          "amendedValue": 0,
+          "effectiveFrom": "2026-10-01",
+          "description": "Non-network 20% co-payment waived to 0% for emergency cardiac hospitalizations on or after 2026-10-01."
+        }
+      ]
+    }
+  ],
+  "clauseDependencies": [
+    {
+      "parentClause": "Clause 2.1 (Room Rent Cap)",
+      "dependentClause": "Clause 2.3 (Proportionate Deductions)",
+      "rule": "Proportionate deduction scales doctor, surgeon, OT, and nursing fees only if daily room rent exceeds 1% of Sum Insured (Rs. 10,000/day)."
+    },
+    {
+      "parentClause": "Clause 5.1 (Cataract Sublimit)",
+      "dependentClause": "Endorsement Clause E.1",
+      "rule": "Cataract sublimit is Rs. 45,000 for treatments prior to 2026-10-01, and Rs. 60,000 for treatments on or after 2026-10-01."
+    },
+    {
+      "parentClause": "Clause 10.2 (Non-Network Copay)",
+      "dependentClause": "Endorsement Clause E.1",
+      "rule": "Non-network copay is 20% by default, but 0% for emergency cardiac admissions on or after 2026-10-01."
+    }
+  ]
+}

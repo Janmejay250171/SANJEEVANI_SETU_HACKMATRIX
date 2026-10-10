@@ -25,6 +25,7 @@ export type TraceOperationType =
   | 'STATUTORY_EXCLUSION_CHECK'
   | 'CONTRACTUAL_EXCLUSION_CHECK'
   | 'ROOM_RENT_CAP_EVALUATION'
+  | 'ICU_CAP_EVALUATION'
   | 'ITEM_SUBLIMIT_EVALUATION'
   | 'PROPORTIONATE_DEDUCTION_EVALUATION'
   | 'AGGREGATE_DEDUCTIBLE_APPLICATION'
@@ -157,6 +158,26 @@ export interface ItemizedLedgerEntry {
 
   /** Specific review reasons for this item */
   reviewReasons: string[];
+
+  /** Phase 4A: Page number where governing policy clause or evidence resides */
+  pageNumber?: number | null;
+
+  /** Phase 4A: Policy clause reference identifier or title */
+  clauseReference?: string | null;
+
+  /** Phase 4A: Clear reason for deduction or approval */
+  deductionReason?: string | null;
+
+  /** Phase 4A: Classification/extraction provenance */
+  provenance?: 'AI_EXTRACTED' | 'USER_CONFIRMED' | 'SYSTEM_DERIVED';
+
+  /** Phase 4A: Determination status */
+  status?: 'DETERMINED' | 'REQUIRES_REVIEW' | 'UNRESOLVED';
+
+  /** Phase 4A: Convenient Rupee amounts */
+  claimedAmount?: number;
+  potentiallyPayableAmount?: number;
+  proposedDeductionAmount?: number;
 }
 
 // ============================================================================
@@ -171,7 +192,8 @@ export interface BillReconciliationIssue {
     | 'DUPLICATE_ITEM_ID'
     | 'ZERO_OR_NEGATIVE_PRICE'
     | 'INVALID_CURRENCY'
-    | 'MISSING_MANDATORY_FIELD';
+    | 'MISSING_MANDATORY_FIELD'
+    | 'MALFORMED_AMOUNT';
   message: string;
   severity: 'WARNING' | 'BLOCKING';
 }
@@ -209,6 +231,9 @@ export interface ClaimFinancialRules {
 
   /** Daily room rent limit rule */
   roomLimit?: RoomOrIcuLimit | null;
+
+  /** Phase 4A: Daily ICU limit rule */
+  icuLimit?: RoomOrIcuLimit | null;
 
   /** Whether policy supports proportionate deductions on room excess */
   proportionateDeductionSupported?: boolean | null;
@@ -250,6 +275,12 @@ export interface ClaimAdjudicationRequest {
 
   /** Policy document (if direct document provided) */
   policyDocument?: PolicyDocument | null;
+
+  /** Optional policy family ID for automatic version reconciliation */
+  policyFamilyId?: string | null;
+
+  /** Optional available policy versions for temporal reconciliation */
+  policyVersions?: PolicyVersionRecord[] | null;
 
   /** Pre-verified bill line item evidence results from Prompt 4 */
   verifiedItemEvidence?: BillItemVerificationResult[];
@@ -303,6 +334,17 @@ export interface ClaimAdjudicationResult {
 
   /** Whether human manual review is required */
   reviewRequired: boolean;
+
+  /** Phase 4A: Single explicit accounting summary in standard Rupee amounts */
+  accountingSummary?: {
+    totalClaimed: number;
+    totalEligibleBeforePatientShare: number;
+    totalDeductions: number;
+    totalPatientPayable: number;
+    totalInsurerPayable: number;
+    unresolvedAmount: number;
+    isBalanced: boolean;
+  };
 
   /** Invariant audit verification report */
   invariants: {

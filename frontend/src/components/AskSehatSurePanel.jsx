@@ -16,6 +16,7 @@ import {
   Info
 } from 'lucide-react';
 import { askPolicyQuestionApi } from '../services/api';
+import { renderFormattedText } from '../utils/textFormatter';
 
 const DEFAULT_SUGGESTIONS = [
   'What is my sum insured?',

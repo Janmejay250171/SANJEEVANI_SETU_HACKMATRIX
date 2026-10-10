@@ -321,5 +321,66 @@ export async function askAssistant({ message, history = [], context = {}, langua
   return data.data;
 }
 
+// ============================================================================
+// Priority 5: Durable Saved Documents API
+// ============================================================================
+
+export async function listSavedDocuments(category = null, token = null) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const query = category ? `?category=${encodeURIComponent(category)}` : '';
+  const res = await fetch(`/api/documents${query}`, { headers });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to list saved documents.');
+  }
+  return data.data || [];
+}
+
+export async function getSavedDocument(documentId, token = null) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/documents/${documentId}`, { headers });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to retrieve saved document.');
+  }
+  return data.data;
+}
+
+export function getDocumentDownloadUrl(documentId) {
+  return `/api/documents/${documentId}/download`;
+}
+
+export async function verifyDocumentIntegrity(documentId, token = null) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/documents/${documentId}/verify`, { headers });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to verify file integrity.');
+  }
+  return data.data;
+}
+
+export async function deleteSavedDocument(documentId, token = null) {
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`/api/documents/${documentId}`, {
+    method: 'DELETE',
+    headers
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.message || 'Failed to delete saved document.');
+  }
+  return data;
+}
+
+
 
 

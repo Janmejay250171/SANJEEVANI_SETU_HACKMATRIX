@@ -1,0 +1,202 @@
+{
+  "datasets": {
+    "hospitals.csv": {
+      "filepath": "D:\\BTECH\\HACKMATRIX_FIN01\\app\\hospitals.csv",
+      "total_records": 52978,
+      "unique_exact_rows": 52978,
+      "exact_duplicates": 0,
+      "unique_hospital_names": 49302,
+      "unique_addresses": 52978,
+      "identical_name_and_address_duplicates": 0,
+      "same_address_multiple_records": 0,
+      "empty_or_missing_fields": {
+        "hospital_name": 0,
+        "address": 0,
+        "specialties": 0,
+        "insurers": 0,
+        "tier": 0
+      },
+      "address_anomalies": {
+        "ocr_bracket_cities": 0,
+        "wide_spacing_fragments": 0,
+        "two_distinct_states": 428,
+        "two_distinct_pincodes": 108
+      },
+      "distinct_tiers": [
+        "City 1",
+        "City 2",
+        "Large City 1",
+        "Large City 2",
+        "Metro 1",
+        "Metro 2",
+        "Town 1",
+        "Town 2"
+      ],
+      "distinct_segments": [
+        "Budget/Local",
+        "Established",
+        "Government",
+        "Luxury",
+        "Premium",
+        "Standard Private"
+      ],
+      "distinct_hospital_types": [
+        "Government",
+        "Private",
+        "Unknown"
+      ],
+      "total_specialties_cataloged": 7,
+      "total_insurers_cataloged": 7,
+      "major_network_branches": {
+        "narayana": 166,
+        "care hospital": 986,
+        "fortis": 107,
+        "max ": 111,
+        "manipal": 106,
+        "apollo": 262,
+        "columbia asia": 14
+      }
+    },
+    "treatment_cost_benchmarks.csv": {
+      "filepath": "D:\\BTECH\\HACKMATRIX_FIN01\\app\\treatment_cost_benchmarks.csv",
+      "total_records": 38,
+      "active_records": 8,
+      "inactive_records": 30,
+      "by_source_status": {
+        "UNVERIFIED": 27,
+        "VERIFIED": 8,
+        "VALUE_NOT_SUPPORTED": 3
+      },
+      "by_benchmark_level": {
+        "hospital_specific": 5,
+        "maharashtra_regional": 11,
+        "national": 11,
+        "government_package": 11
+      },
+      "by_source_type": {
+        "hospital_tariff": 5,
+        "state_benchmark": 11,
+        "national_benchmark": 11,
+        "government_package": 11
+      },
+      "verified_active_count": 8,
+      "unverified_deactivated_count": 30,
+      "verified_procedures_sample": [
+        {
+          "cost_id": "COST_GOVT_001",
+          "procedure": "Total Knee Replacement",
+          "benchmark_level": "government_package",
+          "cost_typical": 80000.0,
+          "source_name": "National Health Authority (NHA) AB-PMJAY HBP 2.2",
+          "source_document": "Health Benefit Package 2.2 Master Package Document"
+        },
+        {
+          "cost_id": "COST_GOVT_002",
+          "procedure": "Cataract Surgery",
+          "benchmark_level": "government_package",
+          "cost_typical": 10500.0,
+          "source_name": "National Health Authority (NHA) AB-PMJAY HBP 2.2",
+          "source_document": "Health Benefit Package 2.2 Master Package Document"
+        },
+        {
+          "cost_id": "COST_GOVT_006",
+          "procedure": "Laparoscopic Appendectomy",
+          "benchmark_level": "government_package",
+          "cost_typical": 18000.0,
+          "source_name": "National Health Authority (NHA) AB-PMJAY HBP 2.2",
+          "source_document": "Health Benefit Package 2.2 Master Package Document"
+        },
+        {
+          "cost_id": "COST_GOVT_007",
+          "procedure": "Caesarean Section (C-Section)",
+          "benchmark_level": "government_package",
+          "cost_typical": 15000.0,
+          "source_name": "National Health Authority (NHA) AB-PMJAY HBP 2.2",
+          "source_document": "Health Benefit Package 2.2 Master Package Document"
+        },
+        {
+          "cost_id": "COST_GOVT_008",
+          "procedure": "Inguinal Hernia Repair",
+          "benchmark_level": "government_package",
+          "cost_typical": 16000.0,
+          "source_name": "National Health Authority (NHA) AB-PMJAY HBP 2.2",
+          "source_document": "Health Benefit Package 2.2 Master Package Document"
+        },
+        {
+          "cost_id": "COST_GOVT_009",
+          "procedure": "Total Hip Replacement",
+          "benchmark_level": "government_package",
+          "cost_typical": 90000.0,
+          "source_name": "National Health Authority (NHA) AB-PMJAY HBP 2.2",
+          "source_document": "Health Benefit Package 2.2 Master Package Document"
+        },
+        {
+          "cost_id": "COST_GOVT_010",
+          "procedure": "Transurethral Resection of the Prostate (TURP)",
+          "benchmark_level": "government_package",
+          "cost_typical": 18000.0,
+          "source_name": "National Health Authority (NHA) AB-PMJAY HBP 2.2",
+          "source_document": "Health Benefit Package 2.2 Master Package Document"
+        },
+        {
+          "cost_id": "COST_GOVT_011",
+          "procedure": "Tympanoplasty",
+          "benchmark_level": "government_package",
+          "cost_typical": 12000.0,
+          "source_name": "National Health Authority (NHA) AB-PMJAY HBP 2.2",
+          "source_document": "Health Benefit Package 2.2 Master Package Document"
+        }
+      ]
+    },
+    "pvt_costs.csv": {
+      "filepath": "D:\\BTECH\\HACKMATRIX_FIN01\\app\\pvt_costs.csv",
+      "total_rows": 184,
+      "distinct_procedures": 23,
+      "distinct_specialties": 7,
+      "distinct_tiers": 8,
+      "grid_structure": "23 procedures x 8 tiers = 184 combinations",
+      "nature_of_data": "Synthetic/Curated Reference Tariff Matrix across 8 Indian City Tiers"
+    },
+    "govt_costs.csv": {
+      "filepath": "D:\\BTECH\\HACKMATRIX_FIN01\\app\\govt_costs.csv",
+      "total_rows": 184,
+      "distinct_procedures": 23,
+      "distinct_specialties": 7,
+      "distinct_tiers": 8,
+      "grid_structure": "23 procedures x 8 tiers = 184 combinations",
+      "nature_of_data": "Synthetic/Curated Reference Tariff Matrix across 8 Indian City Tiers"
+    }
+  },
+  "hospital_analysis": {},
+  "pricing_analysis": {},
+  "data_gap_classification": {
+    "1_validated_using_available_evidence": [
+      "AB-PMJAY HBP 2.2 statutory package rates (8 verified procedures: Knee Replacement, Cataract, Appendectomy, C-Section, Hernia, Hip Replacement, TURP, Tympanoplasty)",
+      "City canonical tier mapping (8 tiers: Metro 1, Metro 2, Large City 1, Large City 2, City 1, City 2, Town 1, Town 2 across all major Indian cities)",
+      "Canonical specialty normalization ontology (9 clinical specialties)",
+      "Network insurer canonical alias mapping (16 major Indian health insurers and public schemes)"
+    ],
+    "2_sufficient_evidence_for_correction": [
+      "OCR bracket splices in address field (e.g. '(City - X) ,X,State' cleaned to formal locality)",
+      "Wide space concatenation errors in hospital addresses de-spliced",
+      "Mismatched state tags (e.g. Bengaluru tagged as Andhra Pradesh corrected to Karnataka)",
+      "Identical hospital name + identical address duplicate records deduplicated safely"
+    ],
+    "3_requiring_external_verification": [
+      "30 deactivated rows in treatment_cost_benchmarks.csv (hospital-specific tariffs and regional benchmarks from private registry surveys)",
+      "Hospital-level cashless empanelment status for 50,000+ facilities in hospitals.csv (presence in directory != live cashless partner)",
+      "Current live NABH accreditation status for non-accredited private nursing homes"
+    ],
+    "4_requiring_manual_review": [
+      "Hospitals with multiple branches sharing identical street addresses (medical complexes / multi-tower facilities)",
+      "Hospitals with rating 0.0 (distinguishing unrated new clinics from poorly reviewed facilities)",
+      "Specialty keywords appearing in hospital name that conflict with listed specialties"
+    ],
+    "5_missing_entirely": [
+      "Patient-level claim lines / itemized hospital invoices (consumables, implants, surgeon fees)",
+      "Doctor seniority tiers and surgical complexity grading",
+      "Empirical private hospital tariff card schedules published directly by hospital chains"
+    ]
+  },
+  "validation_summary": {}
+}

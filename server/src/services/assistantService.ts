@@ -592,11 +592,11 @@ MANDATORY INSTRUCTION: You MUST recommend ONLY these ${topList.length} facilitie
           const topList = candidates.slice(0, 3);
           const hospitalListStr = topList.map((item, i) => {
             const h = item.hospital;
-            const locality = item.localityLabel || h.address?.split(',')[0] || targetCity;
+            const locality = (item as any).localityLabel || h.address?.split(',')[0] || targetCity;
             const netStatus = item.networkInfo?.networkStatus === 'verified'
               ? `100% Cashless Covered (${policy.insurer || 'In-Network'})`
               : 'Network Partner';
-            const oop = item.score?.patientPayable ?? item.estimate?.patientPayable ?? 0;
+            const oop = item.score?.patientPayable ?? (item.estimate as any)?.patientPayable ?? 0;
             const scoreVal = Math.round(Number(item.score?.granularScore ?? item.score?.finalScore ?? 96));
             return `${i + 1}. **${h.hospital_name}** (${locality})
    - Network & Admissibility: ${netStatus}

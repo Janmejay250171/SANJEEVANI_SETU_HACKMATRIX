@@ -302,5 +302,318 @@ describe('FIN-01 Deterministic Claim Adjudication Engine Suite', () => {
       expect(result.ledger.appliedCopayPaise).toBe(0); // Not assumed!
       expect(result.reviewReasons.some(r => r.includes('Non-network co-payment percentage is not specified'))).toBe(true);
     });
+
+    it('Accurately adjudicates Worked Example 1A on Policy syn_fam_health_01 (5L SI, Rs. 5,000 Room Cap, 10% Non-Network Copay)', () => {
+      const request: ClaimAdjudicationRequest = {
+        requestId: 'req_worked_example_210k_policy_a',
+        treatmentDate: '2026-06-01',
+        bill: {
+          billId: 'bill_worked_example_210k_a',
+          hospitalName: 'Apex City Hospital (Non-Network)',
+          billDate: '2026-06-04',
+          admissionDate: '2026-06-01',
+          dischargeDate: '2026-06-04',
+          originalBillTotalPaise: rupeesToPaise(210000),
+          calculatedItemsTotalPaise: rupeesToPaise(210000),
+          reconciliationDifferencePaise: 0,
+          reconciliationStatus: 'RECONCILED',
+          currency: 'INR',
+          lineItems: [
+            {
+              itemId: 'item_room_210k',
+              originalDescription: 'Deluxe Room Rent (3 days @ Rs. 8,000)',
+              category: 'ROOM_RENT',
+              quantity: 3,
+              unitPricePaise: rupeesToPaise(8000),
+              claimedAmountPaise: rupeesToPaise(24000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Deluxe Room Rent', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: [],
+              isNonPayableByRegulation: false
+            },
+            {
+              itemId: 'item_surgeon_210k',
+              originalDescription: 'Surgeon Consultation & OT Charges',
+              category: 'SURGEON_CONSULTATION',
+              quantity: 1,
+              unitPricePaise: rupeesToPaise(80000),
+              claimedAmountPaise: rupeesToPaise(80000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Surgeon Consultation & OT', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: [],
+              isNonPayableByRegulation: false
+            },
+            {
+              itemId: 'item_pharmacy_210k',
+              originalDescription: 'Pharmacy & Medications',
+              category: 'MEDICINES_PHARMACY',
+              quantity: 1,
+              unitPricePaise: rupeesToPaise(40000),
+              claimedAmountPaise: rupeesToPaise(40000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Pharmacy & Medications', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: [],
+              isNonPayableByRegulation: false
+            },
+            {
+              itemId: 'item_consumables_210k',
+              originalDescription: 'Consumables & PPE Kit (Statutory Non-Payables)',
+              category: 'CONSUMABLES_NON_PAYABLES',
+              quantity: 1,
+              unitPricePaise: rupeesToPaise(16000),
+              claimedAmountPaise: rupeesToPaise(16000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Consumables & PPE Kit', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: ['IRDAI_NON_PAYABLE'],
+              isNonPayableByRegulation: true
+            },
+            {
+              itemId: 'item_diag_210k',
+              originalDescription: 'Diagnostics & Pathology Investigations',
+              category: 'INVESTIGATIONS_DIAGNOSTICS',
+              quantity: 1,
+              unitPricePaise: rupeesToPaise(50000),
+              claimedAmountPaise: rupeesToPaise(50000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Diagnostics & Pathology', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: [],
+              isNonPayableByRegulation: false
+            }
+          ],
+          uploadedAt: '2026-10-10T00:00:00Z',
+          extractedAt: '2026-10-10T00:00:00Z'
+        },
+        financialRules: {
+          sumInsuredPaise: rupeesToPaise(500000),
+          roomLimit: { type: 'amount', value: 5000 },
+          proportionateDeductionSupported: true,
+          deductiblePaise: 0,
+          copayPercentage: 0,
+          nonNetworkCopayPercentage: 10,
+          networkStatus: 'no_match'
+        }
+      };
+
+      // 1. Explicitly verify the policy inputs justifying the outputs
+      expect(request.financialRules?.sumInsuredPaise).toBe(rupeesToPaise(500000));
+      expect(request.financialRules?.roomLimit?.value).toBe(5000);
+      expect(request.financialRules?.proportionateDeductionSupported).toBe(true);
+      expect(request.financialRules?.deductiblePaise).toBe(0);
+      expect(request.financialRules?.nonNetworkCopayPercentage).toBe(10);
+      expect(request.financialRules?.networkStatus).toBe('no_match');
+
+      const result = claimAdjudicationService.adjudicateClaim(request);
+
+      // Invariants
+      expect(result.invariants.auditPassed).toBe(true);
+      expect(result.invariants.isMathematicallyBalanced).toBe(true);
+      expect(result.invariants.hasDoubleDeductions).toBe(false);
+
+      // Line items:
+      // 1. Room rent: 3 * 8000 = 24,000 claimed; daily excess = 3,000 * 3 = 9,000 disallowed; 15,000 admissible
+      const roomStage = result.ledger.itemStages.find(s => s.itemId === 'item_room_210k');
+      expect(roomStage?.excludedNonPayablePaise).toBe(rupeesToPaise(9000));
+      expect(roomStage?.finalItemApprovedPaise).toBe(rupeesToPaise(15000));
+
+      // 2. Surgeon: 80,000 claimed; proportionate factor = 5000/8000 = 62.5%; disallowance = 30,000; 50,000 admissible
+      const surgeonStage = result.ledger.itemStages.find(s => s.itemId === 'item_surgeon_210k');
+      expect(surgeonStage?.proportionateDisallowancePaise).toBe(rupeesToPaise(30000));
+      expect(surgeonStage?.finalItemApprovedPaise).toBe(rupeesToPaise(50000));
+
+      // 3. Pharmacy: 40,000 claimed; exempt from proportionate reduction; 40,000 admissible
+      const pharmStage = result.ledger.itemStages.find(s => s.itemId === 'item_pharmacy_210k');
+      expect(pharmStage?.finalItemApprovedPaise).toBe(rupeesToPaise(40000));
+
+      // 4. Consumables: 16,000 claimed; IRDAI statutory exclusion; 0 admissible
+      const consStage = result.ledger.itemStages.find(s => s.itemId === 'item_consumables_210k');
+      expect(consStage?.excludedNonPayablePaise).toBe(rupeesToPaise(16000));
+      expect(consStage?.finalItemApprovedPaise).toBe(0);
+
+      // 5. Diagnostics: 50,000 claimed; EXEMPT from proportionate reduction under IRDAI guidelines; 50,000 admissible
+      const diagStage = result.ledger.itemStages.find(s => s.itemId === 'item_diag_210k');
+      expect(diagStage?.proportionateDisallowancePaise).toBe(0);
+      expect(diagStage?.finalItemApprovedPaise).toBe(rupeesToPaise(50000));
+
+      // Admissible before copay: 15k + 50k + 40k + 50k = Rs. 1,55,000
+      expect(result.ledger.totalAdmissibleBeforeDeductiblePaise).toBe(rupeesToPaise(155000));
+
+      // 10% non-network copay on 1,55,000 = Rs. 15,500
+      expect(result.ledger.appliedCopayPaise).toBe(rupeesToPaise(15500));
+
+      // Insurer settlement: 1,55,000 - 15,500 = Rs. 1,39,500
+      expect(result.ledger.finalInsurerPayablePaise).toBe(rupeesToPaise(139500));
+
+      // Patient responsibility: Disallowances (9k + 30k + 16k = 55k) + Copay (15.5k) = Rs. 70,500
+      expect(result.ledger.totalPatientResponsibilityPaise).toBe(rupeesToPaise(70500));
+
+      // Zero-discrepancy reconciliation invariant:
+      expect(result.ledger.finalInsurerPayablePaise + result.ledger.totalPatientResponsibilityPaise).toBe(rupeesToPaise(210000));
+    });
+
+    it('Accurately adjudicates Worked Example 1B on 45-page Policy synth_doc_arogya_bharat_45pp (10L SI, Rs. 10,000 Room Cap, Rs. 25,000 Deductible, 20% Copay)', () => {
+      // Under the 45-page policy:
+      // SI: Rs. 10,00,000 (Page 2, Clause S.3)
+      // Room rent limit: 1% of SI = Rs. 10,000/day (Page 7, Clause 2.1)
+      // Deductible: Rs. 25,000 compulsory deductible (Page 2, Clause S.3)
+      // Non-network copay: 20% (Page 39, Clause 10.2)
+      // Actual room rate Rs. 8,000 <= Rs. 10,000 -> NO ROOM RENT BREACH, NO PROPORTIONATE DEDUCTION!
+      const request45pp: ClaimAdjudicationRequest = {
+        requestId: 'req_worked_example_210k_policy_b',
+        treatmentDate: '2026-06-01',
+        bill: {
+          billId: 'bill_worked_example_210k_b',
+          hospitalName: 'Apex City Hospital (Non-Network)',
+          billDate: '2026-06-04',
+          admissionDate: '2026-06-01',
+          dischargeDate: '2026-06-04',
+          originalBillTotalPaise: rupeesToPaise(210000),
+          calculatedItemsTotalPaise: rupeesToPaise(210000),
+          reconciliationDifferencePaise: 0,
+          reconciliationStatus: 'RECONCILED',
+          currency: 'INR',
+          lineItems: [
+            {
+              itemId: 'item_room_210k_b',
+              originalDescription: 'Deluxe Room Rent (3 days @ Rs. 8,000)',
+              category: 'ROOM_RENT',
+              quantity: 3,
+              unitPricePaise: rupeesToPaise(8000),
+              claimedAmountPaise: rupeesToPaise(24000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Deluxe Room Rent', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: [],
+              isNonPayableByRegulation: false
+            },
+            {
+              itemId: 'item_surgeon_210k_b',
+              originalDescription: 'Surgeon Consultation & OT Charges',
+              category: 'SURGEON_CONSULTATION',
+              quantity: 1,
+              unitPricePaise: rupeesToPaise(80000),
+              claimedAmountPaise: rupeesToPaise(80000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Surgeon Consultation & OT', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: [],
+              isNonPayableByRegulation: false
+            },
+            {
+              itemId: 'item_pharmacy_210k_b',
+              originalDescription: 'Pharmacy & Medications',
+              category: 'MEDICINES_PHARMACY',
+              quantity: 1,
+              unitPricePaise: rupeesToPaise(40000),
+              claimedAmountPaise: rupeesToPaise(40000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Pharmacy & Medications', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: [],
+              isNonPayableByRegulation: false
+            },
+            {
+              itemId: 'item_consumables_210k_b',
+              originalDescription: 'Consumables & PPE Kit (Statutory Non-Payables)',
+              category: 'CONSUMABLES_NON_PAYABLES',
+              quantity: 1,
+              unitPricePaise: rupeesToPaise(16000),
+              claimedAmountPaise: rupeesToPaise(16000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Consumables & PPE Kit', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: ['IRDAI_NON_PAYABLE'],
+              isNonPayableByRegulation: true
+            },
+            {
+              itemId: 'item_diag_210k_b',
+              originalDescription: 'Diagnostics & Pathology Investigations',
+              category: 'INVESTIGATIONS_DIAGNOSTICS',
+              quantity: 1,
+              unitPricePaise: rupeesToPaise(50000),
+              claimedAmountPaise: rupeesToPaise(50000),
+              currency: 'INR',
+              provenance: { sourceType: 'SYNTHETIC_BENCHMARK', rawExtractedText: 'Diagnostics & Pathology', extractedTimestamp: '2026-10-10T00:00:00Z', confidenceScore: 1.0 },
+              classificationStatus: 'AUTOMATIC_EXACT',
+              reviewFlags: [],
+              isNonPayableByRegulation: false
+            }
+          ],
+          uploadedAt: '2026-10-10T00:00:00Z',
+          extractedAt: '2026-10-10T00:00:00Z'
+        },
+        financialRules: {
+          sumInsuredPaise: rupeesToPaise(1000000),
+          roomLimit: { type: 'amount', value: 10000 },
+          proportionateDeductionSupported: true,
+          deductiblePaise: rupeesToPaise(25000),
+          copayPercentage: 0,
+          nonNetworkCopayPercentage: 20,
+          networkStatus: 'no_match'
+        }
+      };
+
+      // 1. Explicitly verify the policy inputs justifying the outputs
+      expect(request45pp.financialRules?.sumInsuredPaise).toBe(rupeesToPaise(1000000));
+      expect(request45pp.financialRules?.roomLimit?.value).toBe(10000);
+      expect(request45pp.financialRules?.deductiblePaise).toBe(rupeesToPaise(25000));
+      expect(request45pp.financialRules?.nonNetworkCopayPercentage).toBe(20);
+      expect(request45pp.financialRules?.networkStatus).toBe('no_match');
+
+      const result = claimAdjudicationService.adjudicateClaim(request45pp);
+
+      // Invariants
+      expect(result.invariants.auditPassed).toBe(true);
+      expect(result.invariants.isMathematicallyBalanced).toBe(true);
+      expect(result.invariants.hasDoubleDeductions).toBe(false);
+
+      // Line items:
+      // 1. Room rent: 3 * 8000 = 24,000 claimed; Rs. 8,000 <= Rs. 10,000 cap -> 0 disallowed, 24,000 admissible
+      const roomStage = result.ledger.itemStages.find(s => s.itemId === 'item_room_210k_b');
+      expect(roomStage?.excludedNonPayablePaise).toBe(0);
+      expect(roomStage?.finalItemApprovedPaise).toBe(rupeesToPaise(24000));
+
+      // 2. Surgeon: 80,000 claimed; NO room rent breach -> 0 proportionate disallowance, 80,000 admissible
+      const surgeonStage = result.ledger.itemStages.find(s => s.itemId === 'item_surgeon_210k_b');
+      expect(surgeonStage?.proportionateDisallowancePaise).toBe(0);
+      expect(surgeonStage?.finalItemApprovedPaise).toBe(rupeesToPaise(80000));
+
+      // 3. Pharmacy: 40,000 claimed; 40,000 admissible
+      const pharmStage = result.ledger.itemStages.find(s => s.itemId === 'item_pharmacy_210k_b');
+      expect(pharmStage?.finalItemApprovedPaise).toBe(rupeesToPaise(40000));
+
+      // 4. Consumables: 16,000 claimed; IRDAI statutory exclusion; 0 admissible
+      const consStage = result.ledger.itemStages.find(s => s.itemId === 'item_consumables_210k_b');
+      expect(consStage?.excludedNonPayablePaise).toBe(rupeesToPaise(16000));
+      expect(consStage?.finalItemApprovedPaise).toBe(0);
+
+      // 5. Diagnostics: 50,000 claimed; 50,000 admissible
+      const diagStage = result.ledger.itemStages.find(s => s.itemId === 'item_diag_210k_b');
+      expect(diagStage?.proportionateDisallowancePaise).toBe(0);
+      expect(diagStage?.finalItemApprovedPaise).toBe(rupeesToPaise(50000));
+
+      // Admissible before deductible: 24k + 80k + 40k + 50k = Rs. 1,94,000
+      expect(result.ledger.totalAdmissibleBeforeDeductiblePaise).toBe(rupeesToPaise(194000));
+
+      // Deductible applied: min(1,94,000, 25,000) = Rs. 25,000
+      expect(result.ledger.appliedDeductiblePaise).toBe(rupeesToPaise(25000));
+
+      // Admissible post-deductible: 1,94,000 - 25,000 = Rs. 1,69,000
+      // 20% non-network copay on 1,69,000 = Rs. 33,800
+      expect(result.ledger.appliedCopayPaise).toBe(rupeesToPaise(33800));
+
+      // Insurer settlement: 1,69,000 - 33,800 = Rs. 1,35,200
+      expect(result.ledger.finalInsurerPayablePaise).toBe(rupeesToPaise(135200));
+
+      // Patient responsibility: Consumables (16,000) + Deductible (25,000) + Copay (33,800) = Rs. 74,800
+      expect(result.ledger.totalPatientResponsibilityPaise).toBe(rupeesToPaise(74800));
+
+      // Zero-discrepancy reconciliation invariant:
+      expect(result.ledger.finalInsurerPayablePaise + result.ledger.totalPatientResponsibilityPaise).toBe(rupeesToPaise(210000));
+    });
   });
 });

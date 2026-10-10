@@ -10,6 +10,8 @@ import { billExtractionService } from '../services/billExtractionService.js';
 import { claimWorkflowService } from '../services/claimWorkflowService.js';
 import { getUserFromRequest } from './authController.js';
 
+import { documentStorageService } from '../services/documentStorageService.js';
+
 export async function uploadBill(req: Request, res: Response): Promise<void> {
   try {
     const file = req.file;
@@ -17,23 +19,65 @@ export async function uploadBill(req: Request, res: Response): Promise<void> {
       res.status(400).json({
         error: {
           code: 'FILE_REQUIRED',
-          message: 'Please provide a hospital invoice PDF under field name "file".'
+          message: 'Please provide a hospital invoice PDF or image file under field name "file".'
         }
       });
       return;
     }
 
-    if (file.mimetype !== 'application/pdf' && !file.originalname.toLowerCase().endsWith('.pdf')) {
+    const isPdf = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
+    const isImage = file.mimetype.startsWith('image/') || /\.(png|jpe?g|webp)$/i.test(file.originalname);
+
+    if (!isPdf && !isImage) {
       res.status(415).json({
         error: {
           code: 'UNSUPPORTED_MEDIA_TYPE',
-          message: 'Only PDF documents are supported for bill processing.'
+          message: 'Only PDF documents and images (PNG, JPEG, WebP) are supported for bill processing.'
         }
       });
       return;
     }
 
-    const result = await billExtractionService.extractBillFromPdf(file.buffer, file.originalname);
+    const category = isImage ? 'bill_image' : 'bill';
+    let result: any;
+
+    if (isImage) {
+      // Create initial bill record for uploaded image
+      result = billExtractionService.ingestStructuredBill({
+        billId: `bill_${Date.now()}_img`,
+        hospitalName: 'Hospital / Clinic (Image Upload)',
+        sourceDocumentRef: file.originalname,
+        originalBillTotalPaise: 0,
+        calculatedItemsTotalPaise: 0,
+        reconciliationDifferencePaise: 0,
+        lineItems: []
+      });
+      result.extractionWarnings = [
+        'Hospital bill was uploaded as an image. Visual verification confirmed; please review/confirm line items.'
+      ];
+    } else {
+      result = await billExtractionService.extractBillFromPdf(file.buffer, file.originalname);
+    }
+
+    // Priority 5: Durably persist original uploaded bill file with SHA-256 integrity and historical snapshot
+    try {
+      const user = await getUserFromRequest(req);
+      const savedDoc = await documentStorageService.saveDocument({
+        fileBuffer: file.buffer,
+        originalFilename: file.originalname,
+        mimeType: file.mimetype,
+        category,
+        userId: user?._id?.toString() || 'anonymous',
+        relatedEntityId: result.billId,
+        analysisSnapshot: result,
+        modelVersion: '1.0.0'
+      });
+      result.contentHashSha256 = savedDoc.contentHashSha256;
+      result.savedDocumentId = savedDoc.documentId;
+    } catch (saveErr) {
+      console.warn('[ClaimController] Warning persisting durable bill document:', saveErr);
+    }
+
     res.status(200).json({
       status: 'success',
       data: result

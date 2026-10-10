@@ -8,7 +8,8 @@ import {
   CostIntelligenceEstimate,
   CostProvenance,
   CostRange,
-  CostSourceStatus
+  CostSourceStatus,
+  TreatmentPriceClassification
 } from '../types/cost.js';
 import { PolicyDocument } from '../types/policy.js';
 import { RoomCategory, NetworkStatus } from '../types/hospital.js';
@@ -19,6 +20,12 @@ import {
 } from './procedureNormalizerService.js';
 import { parseCSVRecords } from './hospitalService.js';
 import { treatmentCostMLService } from './treatmentCostMLService.js';
+import {
+  treatmentCostIngestionService,
+  RawCostObservation,
+  IngestionReport,
+  normalizePriceClassification
+} from './treatmentCostIngestionService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -186,6 +193,9 @@ export class CostIntelligenceService {
           sample_size: obj.sample_size ? parseInt(obj.sample_size, 10) : undefined,
           confidence_level: (obj.confidence_level as CostConfidenceLevel) || 'medium',
           benchmark_level: bLevel,
+          price_classification: normalizePriceClassification(undefined, obj.source_type, bLevel),
+          unit: 'Per Procedure Package',
+          date_verified: active ? (obj.source_date || '2024-01-01') : undefined,
           notes: obj.notes || '',
           source_status: sourceStatus,
           active: active,
@@ -216,6 +226,24 @@ export class CostIntelligenceService {
 
   public getBenchmarkById(costId: string): CostBenchmarkRecord | undefined {
     return this.benchmarks.find(b => b.cost_id === costId);
+  }
+
+  /**
+   * Phase 2: Ingests new raw treatment price observations through the validation pipeline
+   * and merges verified records idempotently.
+   */
+  public ingestAndMergeRecords(rawObservations: RawCostObservation[]): IngestionReport {
+    const result = treatmentCostIngestionService.ingestCostRecords(rawObservations);
+    for (const newRec of result.ingestedRecords) {
+      const existingIdx = this.benchmarks.findIndex(b => b.cost_id === newRec.cost_id);
+      if (existingIdx >= 0) {
+        this.benchmarks[existingIdx] = newRec;
+      } else {
+        this.benchmarks.push(newRec);
+      }
+    }
+    this.buildIndex();
+    return result.report;
   }
 
   private buildIndex(): void {

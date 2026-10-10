@@ -11,6 +11,7 @@ import journeyRoutes from './routes/journeyRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import claimRoutes from './routes/claimRoutes.js';
 import assistantRoutes from './routes/assistantRoutes.js';
+import documentRoutes from './routes/documentRoutes.js';
 import { hospitalService } from './services/hospitalService.js';
 import { Policy } from './models/Policy.js';
 import { DEMO_POLICIES } from './utils/demoData.js';
@@ -71,6 +72,9 @@ app.use('/api/claims', claimRoutes);
 
 // Global Voice & Text Assistant: Ask SehatSure
 app.use('/api/assistant', assistantRoutes);
+
+// Priority 5: Durable Original Document Storage & Historical Analysis Retrieval
+app.use('/api/documents', documentRoutes);
 
 // 404 handler for unknown API routes
 app.use('/api/*', (_req, res) => {

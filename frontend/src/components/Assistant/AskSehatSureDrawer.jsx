@@ -27,6 +27,7 @@ import {
   speakText,
   stopSpeaking
 } from '../../services/speechService';
+import { renderFormattedText } from '../../utils/textFormatter';
 
 export default function AskSehatSureDrawer({
   isOpen,
@@ -494,16 +495,7 @@ export default function AskSehatSureDrawer({
                 <div className="message-bubble-wrapper">
                   <div className={`message-bubble ${msg.sender}`}>
                     <div className="message-text">
-                      {msg.text.split('\n\n').map((paragraph, pIdx) => (
-                        <p key={pIdx}>
-                          {paragraph.split('\n').map((line, lIdx) => (
-                            <React.Fragment key={lIdx}>
-                              {line}
-                              {lIdx < paragraph.split('\n').length - 1 && <br />}
-                            </React.Fragment>
-                          ))}
-                        </p>
-                      ))}
+                      {renderFormattedText(msg.text)}
                     </div>
 
                     {/* Evidence & Policy Clause Excerpt Accordion */}

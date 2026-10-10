@@ -16,7 +16,8 @@ export default function Navbar({
   onGoToClaims,
   onOpenAuth,
   onOpenProfile,
-  onOpenAssistant
+  onOpenAssistant,
+  onOpenSavedDocuments
 }) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -60,6 +61,15 @@ export default function Navbar({
             className={`nav-link-btn ${currentView === 'claims' ? 'active' : ''}`}
           >
             Claim Intelligence
+          </button>
+
+          <button
+            type="button"
+            onClick={onOpenSavedDocuments}
+            className="nav-link-btn"
+            title="Saved Documents & Bills Vault"
+          >
+            Saved Documents
           </button>
 
           <button
@@ -253,6 +263,14 @@ export default function Navbar({
             className={`mobile-nav-item ${currentView === 'claims' ? 'active' : ''}`}
           >
             Claim Intelligence
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleNavClick(onOpenSavedDocuments)}
+            className="mobile-nav-item"
+          >
+            Saved Documents
           </button>
 
           <button

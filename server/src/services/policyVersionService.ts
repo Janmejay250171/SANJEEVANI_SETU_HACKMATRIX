@@ -418,10 +418,15 @@ function applyClauseModification(policy: PolicyDocument, mod: ClauseModification
     }
   } else if (path.startsWith('subLimits.')) {
     const key = path.replace('subLimits.', '');
-    const num = Number(mod.newClauseText);
+    const num = Number(mod.newClauseText) || Number(mod.newClauseText.replace(/[^0-9.]/g, ''));
     if (!isNaN(num)) {
       policy.subLimits = policy.subLimits || {};
       policy.subLimits[key] = num;
+    }
+  } else if (path === 'nonNetworkCopay') {
+    const num = Number(mod.newClauseText) || Number(mod.newClauseText.replace(/[^0-9.]/g, ''));
+    if (!isNaN(num)) {
+      policy.nonNetworkCopay = num;
     }
   } else if (path === 'exclusions.remove') {
     policy.exclusions = policy.exclusions.filter((e) => e.toLowerCase() !== mod.newClauseText.toLowerCase());

@@ -113,8 +113,8 @@ export default function BillBreakdownModal({
   const dataYear = prov?.dataYear || 2022;
 
   const isStatutoryPolicy = policy?.policyType === 'pmjay' || policy?.policyType === 'esi';
-  const isAdmissibleReliable = hasActualBill || (isStatutoryPolicy && b?.networkInfo?.networkStatus === 'verified');
-  const isOopReliable = hasActualBill || (isStatutoryPolicy && b?.networkInfo?.networkStatus === 'verified');
+  const isAdmissibleReliable = hasActualBill || (isStatutoryPolicy && b?.networkInfo?.networkStatus === 'verified') || Boolean(costIntel?.coveredReliable);
+  const isOopReliable = hasActualBill || (isStatutoryPolicy && b?.networkInfo?.networkStatus === 'verified') || Boolean(costIntel?.oopReliable);
   const admissibleAmount = b?.totalInsuranceCovered || 0;
   const patientOopAmount = b?.totalPatientPayable || 0;
 
@@ -461,7 +461,7 @@ export default function BillBreakdownModal({
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
                 {isAdmissibleReliable
-                  ? 'Policy-adjusted estimate, subject to available information.'
+                  ? (isGovtPkg && !isStatutoryPolicy ? 'Indicative policy estimate on statutory reference rate.' : 'Policy-adjusted estimate, subject to available information.')
                   : 'Additional policy/treatment/billing information required.'}
               </div>
             </div>
@@ -592,7 +592,9 @@ export default function BillBreakdownModal({
                   </div>
                   <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '6px', lineHeight: 1.45 }}>
                     {isAdmissibleReliable
-                      ? 'Policy-adjusted statutory entitlement evaluated under scheme terms.'
+                      ? (isStatutoryPolicy
+                          ? 'Policy-adjusted statutory entitlement evaluated under scheme terms.'
+                          : 'Indicative policy-adjusted coverage calculated against statutory package rate.')
                       : 'Additional policy/treatment/billing information required. Government package rates are statutory references and do not represent private hospital bill admissibility without itemized hospital billing.'}
                   </div>
                 </div>
@@ -637,7 +639,18 @@ export default function BillBreakdownModal({
                   </div>
                   <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '6px', lineHeight: 1.5 }}>
                     {isOopReliable ? (
-                      'Calculated based on verified scheme coverage inputs.'
+                      isStatutoryPolicy ? (
+                        'Calculated based on verified scheme coverage inputs.'
+                      ) : (
+                        <>
+                          <div style={{ fontWeight: 600, color: '#0369a1', marginBottom: '2px' }}>
+                            Indicative simulation based on statutory package rate & policy co-pay/deductible.
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#64748b' }}>
+                            Actual private hospital charges may differ. Final liability is determined by the hospital bill, non-payable items, and TPA adjudication.
+                          </div>
+                        </>
+                      )
                     ) : (
                       <>
                         <div style={{ fontWeight: 600, color: '#92400e', marginBottom: '2px' }}>

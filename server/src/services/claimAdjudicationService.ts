@@ -18,6 +18,7 @@ import {
 } from '../types/claim.js';
 import { PolicyDocument, RoomOrIcuLimit } from '../types/policy.js';
 import { PolicyVersionRecord } from '../types/policyVersion.js';
+import { policyVersionReconciler } from './policyVersionReconciler.js';
 import { BillItemVerificationResult, EvidenceOutcome, VerifiedClauseCitation } from '../types/verification.js';
 import {
   CalculationTraceStep,
@@ -123,7 +124,31 @@ export class ClaimAdjudicationService {
     // ========================================================================
     // EXTRACT & RESOLVE POLICY FINANCIAL RULES
     // ========================================================================
-    const policy = request.policyDocument || request.policyVersion?.policyData;
+    let policy = request.policyDocument || request.policyVersion?.policyData;
+    let selectedVersion = request.policyVersion;
+    let amendmentIds = request.policyVersion?.clauseModifications?.map(m => m.clauseId) || [];
+
+    // Reconcile policy versions temporally if policyFamilyId and policyVersions are provided
+    if (request.policyFamilyId && request.policyVersions && request.policyVersions.length > 0) {
+      const reconResult = policyVersionReconciler.reconcilePolicyDocuments(
+        request.policyFamilyId,
+        request.policyVersions,
+        request.treatmentDate
+      );
+      if (reconResult.applicabilityResult.status !== 'resolved') {
+        reviewReasons.push(
+          `[Policy Version Reconciliation] ${reconResult.applicabilityResult.status}: ${
+            (reconResult.applicabilityResult as any).rejectionReason || (reconResult.applicabilityResult as any).resolutionReason || 'Applicability resolution failed'
+          }`
+        );
+      }
+      if (reconResult.effectivePolicySnapshot && Object.keys(reconResult.effectivePolicySnapshot).length > 0) {
+        policy = reconResult.effectivePolicySnapshot;
+        selectedVersion = reconResult.applicabilityResult.selectedBaseVersion || selectedVersion;
+        amendmentIds = reconResult.applicabilityResult.applicableAmendments?.map(e => e.versionId) || amendmentIds;
+      }
+    }
+
     const rules = this.resolveFinancialRules(request, policy, reviewReasons);
 
     // ========================================================================
@@ -180,6 +205,16 @@ export class ClaimAdjudicationService {
       }
 
       // Propagate item-level input review flags
+      const isUnclassified =
+        item.classificationStatus === 'UNCLASSIFIED' ||
+        item.reviewFlags?.includes('UNCLASSIFIED') ||
+        (item.category === 'MISCELLANEOUS' && item.originalDescription.toLowerCase().includes('unclassified'));
+
+      if (isUnclassified) {
+        itemReviewRequired = true;
+        itemReviewReasons.push(`Unclassified charge '${item.originalDescription}' requires manual review.`);
+      }
+
       if (item.reviewFlags && item.reviewFlags.length > 0) {
         const actionableFlags = item.reviewFlags.filter(
           f => f !== 'IRDAI_NON_PAYABLE' && f !== 'USER_CORRECTED'
@@ -275,6 +310,50 @@ export class ClaimAdjudicationService {
             controllingClauseExcerpt
           );
         }
+      } else if (item.category === 'ICU_CHARGES') {
+        const icuStayDays = Math.max(1, item.quantity || 1);
+        const dailyIcuRatePaise = item.quantity > 0
+          ? Math.round(item.claimedAmountPaise / icuStayDays)
+          : item.unitPricePaise;
+
+        if (rules.hasIcuCap && dailyIcuRatePaise > rules.eligibleIcuRatePerDayPaise) {
+          const dailyExcess = dailyIcuRatePaise - rules.eligibleIcuRatePerDayPaise;
+          const totalExcess = dailyExcess * icuStayDays;
+          excludedPaise = Math.min(item.claimedAmountPaise, totalExcess);
+
+          const icuClause = ver?.supportingEvidence?.[0];
+          controllingClauseId = icuClause?.clauseId || 'CL_ICU_LIMIT_CAP';
+          controllingClauseExcerpt = icuClause?.exactExcerpt || `ICU rate capped at ${formatPaise(rules.eligibleIcuRatePerDayPaise)}/day.`;
+
+          const adjId = `adj_icu_cap_${item.itemId}`;
+          const adjRecord: ClaimAdjustmentRecord = {
+            adjustmentId: adjId,
+            targetItemId: item.itemId,
+            scope: 'ITEM_LEVEL_EXCLUSION',
+            description: `ICU Cap: Daily rate ${formatPaise(dailyIcuRatePaise)} exceeds limit ${formatPaise(rules.eligibleIcuRatePerDayPaise)}`,
+            baseAmountPaise: item.claimedAmountPaise,
+            deductionAmountPaise: excludedPaise,
+            remainingAmountPaise: item.claimedAmountPaise - excludedPaise,
+            clauseReference: controllingClauseId,
+            reasonCode: 'ICU_DAILY_CAP_BREACH',
+            reviewRequired: itemReviewRequired,
+            uncertaintyReason: itemReviewReasons.join('; ') || null
+          };
+          itemAdjustments.push(adjRecord);
+          adjustmentLedger.push(adjRecord);
+
+          logTrace(
+            'ICU_CAP_EVALUATION',
+            item.itemId,
+            item.claimedAmountPaise,
+            `Excess = (${dailyIcuRatePaise} - ${rules.eligibleIcuRatePerDayPaise}) * ${icuStayDays} = ${excludedPaise} paise`,
+            excludedPaise,
+            item.claimedAmountPaise - excludedPaise,
+            `ICU charges exceed daily contractual entitlement of ${formatPaise(rules.eligibleIcuRatePerDayPaise)}/day.`,
+            controllingClauseId,
+            controllingClauseExcerpt
+          );
+        }
       }
 
       totalExcludedNonPayablePaise += excludedPaise;
@@ -341,6 +420,10 @@ export class ClaimAdjudicationService {
         evidenceReferences: []
       });
 
+      const evidencePageNumber = ver?.supportingEvidence?.[0]?.pageNumber ??
+        ver?.adverseExclusionEvidence?.[0]?.pageNumber ??
+        (isStatutoryExclusion ? 25 : null);
+
       itemLedgerEntries.push({
         itemId: item.itemId,
         originalDescription: item.originalDescription,
@@ -352,6 +435,8 @@ export class ClaimAdjudicationService {
         policyVersionId: request.policyVersion?.versionId || null,
         controllingClauseId,
         controllingClauseExcerpt,
+        pageNumber: evidencePageNumber,
+        clauseReference: controllingClauseId,
         excludedNonPayablePaise: excludedPaise,
         admissibleBeforeClaimAdjustmentsPaise,
         sublimitDisallowancePaise,
@@ -675,12 +760,67 @@ export class ClaimAdjudicationService {
       invariantsVerified: isMathematicallyBalanced && !hasDoubleDeductions && !hasNegativePayable
     };
 
+    // Phase 4A: Enrich line items with convenient fields, deduction reasons, provenance and determination status
+    for (const item of itemLedgerEntries) {
+      item.claimedAmount = paiseToRupees(item.claimedAmountPaise);
+      item.potentiallyPayableAmount = paiseToRupees(item.insurerPayablePaise);
+      item.proposedDeductionAmount = paiseToRupees(item.claimedAmountPaise - item.insurerPayablePaise);
+      item.clauseReference = item.controllingClauseId || null;
+
+      // Deduction reason
+      if (item.insurerPayablePaise === item.claimedAmountPaise) {
+        item.deductionReason = 'Fully admissible under policy terms.';
+      } else {
+        item.deductionReason = item.adjustments.map(a => a.description).join('; ') ||
+          (item.allocatedDeductiblePaise > 0 || item.allocatedCopayPaise > 0
+            ? 'Policy deductible / co-payment share applied.'
+            : 'Policy deduction applied.');
+      }
+
+      // Provenance
+      const originalItem = request.bill.lineItems.find(li => li.itemId === item.itemId);
+      if (originalItem?.reviewFlags?.includes('USER_CORRECTED') || originalItem?.provenance?.sourceType === 'MANUAL_ENTRY') {
+        item.provenance = 'USER_CONFIRMED';
+      } else if (originalItem?.provenance?.sourceType === 'OCR_PDF_EXTRACTION' || originalItem?.provenance?.sourceType === 'STRUCTURED_JSON_TEMPLATE') {
+        item.provenance = 'AI_EXTRACTED';
+      } else {
+        item.provenance = 'SYSTEM_DERIVED';
+      }
+
+      // Determination status
+      if (item.reviewRequired || (item.reviewReasons && item.reviewReasons.length > 0)) {
+        if (item.evidenceStatus === 'insufficient_evidence') {
+          item.status = 'UNRESOLVED';
+        } else {
+          item.status = 'REQUIRES_REVIEW';
+        }
+      } else {
+        item.status = 'DETERMINED';
+      }
+    }
+
+    const unresolvedPaise = itemLedgerEntries
+      .filter(i => i.status === 'REQUIRES_REVIEW' || i.status === 'UNRESOLVED')
+      .reduce((sum, i) => sum + i.claimedAmountPaise, 0);
+
+    const accountingSummary = {
+      totalClaimed: paiseToRupees(totalClaimedPaise),
+      totalEligibleBeforePatientShare: paiseToRupees(totalAdmissibleBeforeDeductiblePaise),
+      totalDeductions: paiseToRupees(
+        totalExcludedNonPayablePaise + totalSublimitDisallowancePaise + totalProportionateDisallowancePaise
+      ),
+      totalPatientPayable: paiseToRupees(totalPatientResponsibilityPaise),
+      totalInsurerPayable: paiseToRupees(finalInsurerPayablePaise),
+      unresolvedAmount: paiseToRupees(unresolvedPaise),
+      isBalanced: isMathematicallyBalanced
+    };
+
     return {
       assessmentId,
       requestId: request.requestId,
       treatmentDate: request.treatmentDate,
-      policyVersionId: request.policyVersion?.versionId || null,
-      amendmentIds: request.policyVersion?.clauseModifications?.map(m => m.clauseId) || [],
+      policyVersionId: selectedVersion?.versionId || request.policyVersion?.versionId || null,
+      amendmentIds,
       billReconciliation,
       itemizedLedger: itemLedgerEntries,
       ledger: claimLedger,
@@ -690,6 +830,7 @@ export class ClaimAdjudicationService {
       reviewStatus,
       reviewReasons,
       reviewRequired,
+      accountingSummary,
       invariants: {
         isMathematicallyBalanced,
         hasNegativePayable,
@@ -751,6 +892,16 @@ export class ClaimAdjudicationService {
         });
       }
       seenIds.add(item.itemId);
+
+      // Malformed numerical check
+      if (!Number.isFinite(item.unitPricePaise) || !Number.isFinite(item.claimedAmountPaise) || !Number.isFinite(item.quantity)) {
+        issues.push({
+          itemId: item.itemId,
+          issueType: 'MALFORMED_AMOUNT',
+          message: `Item '${item.itemId}' contains malformed non-finite numerical amount.`,
+          severity: 'BLOCKING'
+        });
+      }
 
       // Zero or negative price check
       if (item.unitPricePaise < 0 || item.claimedAmountPaise < 0) {
@@ -820,6 +971,8 @@ export class ClaimAdjudicationService {
     isPreviousUtilizationKnown: boolean;
     hasRoomRentCap: boolean;
     eligibleRoomRatePerDayPaise: MoneyMinor;
+    hasIcuCap: boolean;
+    eligibleIcuRatePerDayPaise: MoneyMinor;
     proportionateDeductionSupported: boolean | null;
     deductiblePaise: MoneyMinor | null;
     effectiveCopayPercentage: number | null;
@@ -869,6 +1022,28 @@ export class ClaimAdjudicationService {
         }
       } else if (roomLimit.type === 'none') {
         hasRoomRentCap = false;
+      }
+    }
+
+    // 2b. ICU Limit Cap
+    let hasIcuCap = false;
+    let eligibleIcuRatePerDayPaise = 999999999;
+
+    const icuLimit = rules?.icuLimit || (policy as any)?.icuLimit;
+    if (icuLimit) {
+      if (icuLimit.type === 'amount' && icuLimit.value) {
+        hasIcuCap = true;
+        eligibleIcuRatePerDayPaise = rupeesToPaise(Number(icuLimit.value));
+      } else if (icuLimit.type === 'percent' && icuLimit.value) {
+        hasIcuCap = true;
+        const pct = Number(icuLimit.value);
+        if (sumInsuredPaise !== null) {
+          eligibleIcuRatePerDayPaise = safeMultiplyRatio(sumInsuredPaise, pct, 100);
+        } else {
+          reviewReasons.push(`ICU cap is ${pct}% of Sum Insured, but Sum Insured is unknown.`);
+        }
+      } else if (icuLimit.type === 'none') {
+        hasIcuCap = false;
       }
     }
 
@@ -955,6 +1130,8 @@ export class ClaimAdjudicationService {
       isPreviousUtilizationKnown,
       hasRoomRentCap,
       eligibleRoomRatePerDayPaise,
+      hasIcuCap,
+      eligibleIcuRatePerDayPaise,
       proportionateDeductionSupported,
       deductiblePaise,
       effectiveCopayPercentage,

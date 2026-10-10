@@ -3212,6 +3212,7 @@ export default function HospitalDiscoveryPage({
                   }
 
                   const isGovtPkg = ci.isGovernmentPackageOnly || ci.benchmarkLevel === 'government_package';
+                  const isStatutoryPolicy = policy?.policyType === 'pmjay' || policy?.policyType === 'esi';
                   const exactGovtRate = ci.exactPackageRate || ci.treatmentCostRange?.typical || est.totalCost;
                   const treatmentCostDisplay = isGovtPkg
                     ? formatINR(exactGovtRate)
@@ -3282,6 +3283,11 @@ export default function HospitalDiscoveryPage({
                         <div style={{ maxWidth: '55%' }}>
                           <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {t('discovery.hospitalCard.patientShare', 'Patient Responsibility')}
+                            {isGovtPkg && !isStatutoryPolicy && ci.oopReliable && (
+                              <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#0284c7', marginLeft: '4px', textTransform: 'none' }}>
+                                (Indicative)
+                              </span>
+                            )}
                           </span>
                           <div style={{
                             fontSize: ci.oopReliable ? '22px' : '14px',
@@ -3292,6 +3298,11 @@ export default function HospitalDiscoveryPage({
                           }}>
                             {oopDisplay}
                           </div>
+                          {isGovtPkg && !isStatutoryPolicy && ci.oopReliable && (
+                            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
+                              Statutory rate simulation • Actual private bill differs
+                            </div>
+                          )}
                         </div>
 
                         <div style={{ textAlign: 'right', maxWidth: '45%' }}>
