@@ -19,16 +19,9 @@ import { askPolicyQuestionApi } from '../services/api';
 import { renderFormattedText } from '../utils/textFormatter';
 
 const DEFAULT_SUGGESTIONS = [
-  'What is my sum insured?',
   'What is my room-rent limit?',
   'Do I have a co-payment?',
-  'What is my non-network co-payment?',
-  'What does my policy exclude?',
-  'Is knee replacement covered?',
-  'Can you estimate my out-of-pocket cost?',
-  'What if I choose a ₹7,000/day room?',
-  'What if the hospital is non-network?',
-  'What information is missing?'
+  'What does my policy exclude?'
 ];
 
 export default function AskSehatSurePanel({ isOpen, onClose, policy }) {
@@ -387,7 +380,7 @@ export default function AskSehatSurePanel({ isOpen, onClose, policy }) {
                       <div className="sehat-msg-followups">
                         <span className="sehat-msg-followups-title">Related questions:</span>
                         <div className="sehat-msg-followups-chips">
-                          {m.suggestedQuestions.map((fq, fIdx) => (
+                          {m.suggestedQuestions.slice(0, 3).map((fq, fIdx) => (
                             <button
                               key={fIdx}
                               type="button"

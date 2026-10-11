@@ -117,9 +117,11 @@ export function getCareJourneyPlan({ policy, hospital, procedure, roomType }) {
         }
       ],
       checklist: [
-        { id: 'c1_2', text: `Verify that chosen room (${selectedRoomName}) adheres to your policy limit (${roomLimitLabel || 'Check Policy'}).` },
-        { id: 'c1_3', text: 'Carry original Government Photo ID (Aadhaar / Voter ID) and Policy Schedule PDF.' },
-        { id: 'c1_4', text: 'Ensure treating doctor fills diagnosis and estimated cost on the initial pre-auth request.' }
+        { id: 'c1_id', text: 'Carry Government ID card (Aadhaar / Voter ID / PAN) for patient identity verification.' },
+        { id: 'c1_consent', text: 'Fill patient consent form and ensure you have read and understood the admission terms and conditions.' },
+        { id: 'c1_preauth', text: 'Fill cashless pre-authorization form and confirm hospital accepted the policy and started treatment.' },
+        { id: 'c1_room', text: `Ensure admission to the right room according to the eligibility mentioned in insurance policy (${selectedRoomName} vs ${roomLimitLabel || 'Check Policy'}).` },
+        { id: 'c1_doctor', text: 'Ensure treating doctor fills diagnosis and estimated cost on the initial pre-auth request.' }
       ]
     },
     {
@@ -171,9 +173,10 @@ export function getCareJourneyPlan({ policy, hospital, procedure, roomType }) {
         }
       ],
       checklist: [
-        { id: 'c2_1', text: 'Ensure every blood test, X-ray, or CT scan has a signed doctor prescription note.' },
-        { id: 'c2_2', text: 'Preserve physical and digital copies of all lab reports with diagnostic values.' },
-        { id: 'c2_3', text: 'Keep original payment receipts and doctor referral slips for all pre-admission tests.' }
+        { id: 'c2_imaging_coverage', text: 'Ensure that diagnostic tests and other advanced imaging (CT, MRI, PET scans) are covered in policy or not.' },
+        { id: 'c2_relevant_tests', text: 'Ensure only relevant medical tests are done during treatment (not random or unindicated diagnostic tests).' },
+        { id: 'c2_prescription_notes', text: 'Ensure every blood test, scan, or investigation has a signed doctor prescription note.' },
+        { id: 'c2_preserve_reports', text: 'Preserve physical and digital copies of all lab reports with diagnostic values for claim filing.' }
       ]
     },
     {
@@ -237,9 +240,10 @@ export function getCareJourneyPlan({ policy, hospital, procedure, roomType }) {
         }
       ],
       checklist: [
-        { id: 'c3_1', text: 'Ask treating surgeon whether the procedure qualifies for Daycare settlement under policy rules.' },
-        { id: 'c3_2', text: 'Verify batch number and sticker for any implant placed in the patient medical record.' },
-        { id: 'c3_3', text: 'Request an interim ledger from hospital billing counter to monitor ongoing accruals.' }
+        { id: 'c3_surgical_protocols', text: 'Verify that proper pre-operative and post-operative surgical procedures were followed.' },
+        { id: 'c3_relatives_contact', text: 'Ask relatives to be in touch with the doctor and treating team after the surgical procedure.' },
+        { id: 'c3_implant_stickers', text: 'Verify batch number and sticker for any implant placed in the patient medical record.' },
+        { id: 'c3_interim_ledger', text: 'Request an interim ledger from hospital billing counter to monitor ongoing accruals.' }
       ]
     },
     {
@@ -291,10 +295,11 @@ export function getCareJourneyPlan({ policy, hospital, procedure, roomType }) {
         }
       ],
       checklist: [
-        { id: 'c4_1', text: 'Obtain signed, stamped original Discharge Summary before leaving the hospital.' },
-        { id: 'c4_2', text: 'Collect consolidated itemized hospital bill with breakup of pharmacy and OT charges.' },
-        { id: 'c4_3', text: 'Collect indoor case record summary and implant warranty stickers (if applicable).' },
-        { id: 'c4_4', text: 'Submit post-hospitalization bills within the stipulated claim submission window.' }
+        { id: 'c4_emergency_poc', text: 'Obtain dedicated point of contact in case of emergency.' },
+        { id: 'c4_entire_file_collection', text: 'Collect your entire treatment file with all bills, records, medication slips, test procedures, and reports for future reference.' },
+        { id: 'c4_insurance_original_docs', text: 'If treatment was performed under claim insurance, obtain all required documents in original according to policy requirements for claim and preserve all records.' },
+        { id: 'c4_discharge_summary', text: 'Obtain signed, stamped original Discharge Summary before leaving the hospital.' },
+        { id: 'c4_post_hosp_timeline', text: 'Submit post-hospitalization bills within the stipulated claim submission window.' }
       ]
     }
   ];

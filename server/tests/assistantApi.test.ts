@@ -112,4 +112,59 @@ describe('Ask SehatSure Global Voice & Text Assistant — API & Service Suite', 
     expect(res.answer).toBeDefined();
     expect(res.spokenText).toBeDefined();
   });
+
+  it('TEST 9: Document checklist query answers on-topic concisely without unsolicited hospital dumps', async () => {
+    const res = await assistantService.handleChat({
+      message: 'What documents do I need to analyze my health insurance?',
+      history: [],
+      context: { currentView: 'upload' },
+      language: 'en'
+    });
+
+    expect(res.answer.toLowerCase()).toMatch(/upload.*policy.*pdf|policy schedule/i);
+    expect(res.answer.toLowerCase()).not.toMatch(/hospital|apollo|manipal|cholecystectomy/i);
+    const wordCount = res.answer.trim().split(/\s+/).length;
+    expect(wordCount).toBeLessThanOrEqual(70);
+    expect(res.suggestedQuestions.length).toBeLessThanOrEqual(3);
+  });
+
+  it('TEST 10: Simple factual question returns concise answer under 70 words and clean spokenText matches', async () => {
+    const res = await assistantService.handleChat({
+      message: 'What is my room rent limit?',
+      history: [],
+      context: { policyId: HDFC_POLICY_ID, currentView: 'summary' },
+      language: 'en'
+    });
+
+    const wordCount = res.answer.trim().split(/\s+/).length;
+    expect(wordCount).toBeLessThanOrEqual(70);
+    expect(res.spokenText).toBeDefined();
+    expect(res.spokenText.length).toBeGreaterThan(0);
+    expect(res.spokenText).not.toContain('*');
+    expect(res.suggestedQuestions.length).toBeLessThanOrEqual(3);
+  });
+
+  it('TEST 11: Detailed explanation requested honors depth for claim breakdown', async () => {
+    const res = await assistantService.handleChat({
+      message: 'Show me a detailed explanation of my claim.',
+      history: [],
+      context: { currentView: 'claims', scenarioId: 'scenario-1-proportionate' },
+      language: 'en'
+    });
+
+    expect(res.answer.toLowerCase()).toMatch(/proportionate|non-payable|deductible|rules|sequence/i);
+    expect(res.provenance).toBe('Claim Engine');
+  });
+
+  it('TEST 12: General query does not dump unsolicited hospital recommendations', async () => {
+    const res = await assistantService.handleChat({
+      message: 'How is my out-of-pocket expense calculated?',
+      history: [],
+      context: { currentView: 'upload' },
+      language: 'en'
+    });
+
+    expect(res.answer.toLowerCase()).toMatch(/out-of-pocket|total.*bill|covered/i);
+    expect(res.answer.toLowerCase()).not.toMatch(/metro superspeciality|sanjeevanee hospital|empanelled/i);
+  });
 });

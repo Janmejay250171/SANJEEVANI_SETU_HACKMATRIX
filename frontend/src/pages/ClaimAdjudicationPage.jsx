@@ -15,7 +15,8 @@ import {
   FileCheck,
   Info,
   ChevronRight,
-  GitCompare
+  GitCompare,
+  Sparkles
 } from 'lucide-react';
 import {
   uploadBillPdf,
@@ -285,20 +286,13 @@ export default function ClaimAdjudicationPage({
       {/* Header & Product Banner */}
       <section className="claim-hero-section">
         <div className="claim-hero-badge">
-          <ShieldCheck size={16} />
-          FIN-01 Insurance Coverage & Treatment Cost Intelligence
+          <Sparkles size={14} />
+          Claim Intelligence
         </div>
-        <h1 className="claim-hero-title">Itemized Claim Adjudication & Clause Intelligence</h1>
+        <h1 className="claim-hero-title">Claim Breakdown & Verification</h1>
         <p className="claim-hero-desc">
-          Automated clause-level policy matching, statutory non-payable exclusion detection, sublimit enforcement, and auditable ledger calculations for health insurance bills.
+          Compare hospital bills against your policy coverage, exclusions, and deductibles in seconds.
         </p>
-
-        <div className="regulatory-notice-banner">
-          <Info size={16} className="text-primary flex-shrink-0" />
-          <span>
-            <strong>Pre-Settlement Transparency Engine:</strong> All values are auditable intelligence estimates computed deterministically from contractual policy terms and itemized invoice line items. This does not constitute an insurer payment guarantee.
-          </span>
-        </div>
       </section>
 
       {/* Demonstration Scenario Picker */}
@@ -311,12 +305,65 @@ export default function ClaimAdjudicationPage({
 
       {/* Main Workflow Grid */}
       <div className="claim-workspace-grid">
+        {/* Section C: Executive Financial Adjudication Summary (Prioritized Upfront) */}
+        {currentLedger && (
+          <section className="workspace-card financial-summary-card" aria-label="Claim Summary" style={{ gridColumn: '1 / -1' }}>
+            <div className="card-header-flex">
+              <div className="header-title-box">
+                <Scale size={18} className="text-primary" />
+                <h3>Claim Summary</h3>
+              </div>
+              <span className={`status-pill ${getStatusBadgeClass(currentClaim?.status)}`}>
+                {currentClaim?.status?.replace(/_/g, ' ')}
+              </span>
+            </div>
+
+            <div className="card-body">
+              <div className="financial-kpi-grid">
+                <div className="kpi-box kpi-claimed">
+                  <span className="kpi-label">TOTAL BILLED</span>
+                  <span className="kpi-val font-mono">{formatInr(currentLedger.totalClaimedPaise)}</span>
+                  <span className="kpi-sub">Invoice amount</span>
+                </div>
+
+                <div className="kpi-box kpi-disallowed">
+                  <span className="kpi-label">DISALLOWED / CAPPED</span>
+                  <span className="kpi-val font-mono text-danger">
+                    -{formatInr(
+                      currentLedger.totalExcludedNonPayablePaise +
+                        currentLedger.totalProportionateDisallowancePaise +
+                        currentLedger.totalSublimitDisallowancePaise
+                    )}
+                  </span>
+                  <span className="kpi-sub">Exclusions & sublimits</span>
+                </div>
+
+                <div className="kpi-box kpi-payable">
+                  <span className="kpi-label">INSURANCE PAYS</span>
+                  <span className="kpi-val font-mono font-bold text-success">
+                    {formatInr(currentLedger.finalInsurerPayablePaise)}
+                  </span>
+                  <span className="kpi-sub">Estimated payout</span>
+                </div>
+
+                <div className="kpi-box kpi-patient">
+                  <span className="kpi-label">YOU PAY</span>
+                  <span className="kpi-val font-mono font-bold text-danger">
+                    {formatInr(currentLedger.totalPatientResponsibilityPaise)}
+                  </span>
+                  <span className="kpi-sub">Co-pay & non-payables</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Section A: Bill Input & Ingestion Card */}
         <section className="workspace-card" aria-label="Invoice Configuration">
           <div className="card-header-flex">
             <div className="header-title-box">
               <Building size={18} className="text-primary" />
-              <h3>1. Bill Ingestion & Input Verification</h3>
+              <h3>1. Bill Details & Upload</h3>
             </div>
             {stagedBill && (
               <span className={`reconciliation-pill pill-${stagedBill.reconciliationStatus?.toLowerCase()}`}>
@@ -328,7 +375,7 @@ export default function ClaimAdjudicationPage({
           <div className="card-body">
             <div className="form-row-3">
               <div className="form-field">
-                <label className="form-label">Hospital Provider</label>
+                <label className="form-label">Hospital</label>
                 <input
                   type="text"
                   className="form-input"
@@ -339,7 +386,7 @@ export default function ClaimAdjudicationPage({
               </div>
 
               <div className="form-field">
-                <label className="form-label">Treatment / Admission Date</label>
+                <label className="form-label">Admission Date</label>
                 <input
                   type="date"
                   className="form-input font-mono"
@@ -355,7 +402,7 @@ export default function ClaimAdjudicationPage({
               </div>
 
               <div className="form-field">
-                <label className="form-label">Policy Identifier</label>
+                <label className="form-label">Policy ID</label>
                 <input
                   type="text"
                   className="form-input font-mono"
@@ -380,11 +427,11 @@ export default function ClaimAdjudicationPage({
                 <UploadCloud size={32} className="text-primary" />
                 <span className="dropzone-text">
                   {isUploadingBill
-                    ? 'Extracting and parsing itemized PDF invoice...'
-                    : 'Click to upload itemized hospital bill (PDF) or drag and drop'}
+                    ? 'Processing PDF invoice...'
+                    : 'Upload hospital bill (PDF) or drag and drop'}
                 </span>
                 <span className="dropzone-sub">
-                  Supports standard Indian hospital tax invoices & itemized discharge bills
+                  Supports itemized hospital bills & discharge summaries
                 </span>
               </label>
             </div>
@@ -400,16 +447,16 @@ export default function ClaimAdjudicationPage({
             {stagedBill && (
               <div className="staged-bill-summary">
                 <div className="bill-metric">
-                  <span className="metric-label">Detected Bill Total</span>
+                  <span className="metric-label">Bill Total</span>
                   <span className="metric-val font-mono">{formatInr(stagedBill.originalBillTotalPaise)}</span>
                 </div>
                 <div className="bill-metric">
-                  <span className="metric-label">Calculated Items Total</span>
+                  <span className="metric-label">Items Sum</span>
                   <span className="metric-val font-mono">{formatInr(stagedBill.calculatedItemsTotalPaise)}</span>
                 </div>
                 <div className="bill-metric">
-                  <span className="metric-label">Extracted Items Count</span>
-                  <span className="metric-val font-bold">{stagedBill.lineItems?.length || 0} Line Items</span>
+                  <span className="metric-label">Items Count</span>
+                  <span className="metric-val font-bold">{stagedBill.lineItems?.length || 0} items</span>
                 </div>
               </div>
             )}
@@ -422,7 +469,7 @@ export default function ClaimAdjudicationPage({
             <div className="card-header-flex">
               <div className="header-title-box">
                 <Calendar size={18} className="text-primary" />
-                <h3>2. Policy Version & Endorsement Applicability</h3>
+                <h3>2. Matched Policy</h3>
               </div>
               <span className="badge-primary font-mono text-sm">
                 Treatment Date: {currentClaim.treatmentDate}
@@ -432,17 +479,17 @@ export default function ClaimAdjudicationPage({
             <div className="card-body">
               <div className="version-resolution-box">
                 <div className="resolution-col">
-                  <span className="res-label">Selected Base Policy Version:</span>
+                  <span className="res-label">Base Policy:</span>
                   <span className="res-value font-mono font-semibold text-primary">
                     {currentClaim.selectedPolicyVersionId || 'No matching policy version'}
                   </span>
                   <span className="res-note">
-                    Evaluated contractually against admission date {currentClaim.treatmentDate}
+                    Active on admission date
                   </span>
                 </div>
 
                 <div className="resolution-col">
-                  <span className="res-label">Applicable Amendments / Endorsements:</span>
+                  <span className="res-label">Endorsements:</span>
                   {currentClaim.applicableAmendmentIds && currentClaim.applicableAmendmentIds.length > 0 ? (
                     <div className="amendments-tag-list">
                       {currentClaim.applicableAmendmentIds.map((amId) => (
@@ -452,7 +499,7 @@ export default function ClaimAdjudicationPage({
                       ))}
                     </div>
                   ) : (
-                    <span className="text-muted text-sm">No post-issue endorsements applicable for this date.</span>
+                    <span className="text-muted text-sm">None applied for this date.</span>
                   )}
                 </div>
               </div>
@@ -461,7 +508,7 @@ export default function ClaimAdjudicationPage({
                 <div className="review-alert-box animate-fade-in">
                   <ShieldAlert size={18} className="text-warning flex-shrink-0" />
                   <div>
-                    <h4 className="alert-title">Adjudication Review Actions Required</h4>
+                    <h4 className="alert-title">Review Actions Required</h4>
                     <ul className="alert-reasons-list">
                       {currentClaim.reviewReasons?.map((r, idx) => (
                         <li key={idx}>{r}</li>
@@ -470,59 +517,6 @@ export default function ClaimAdjudicationPage({
                   </div>
                 </div>
               )}
-            </div>
-          </section>
-        )}
-
-        {/* Section C: Executive Financial Adjudication Summary */}
-        {currentLedger && (
-          <section className="workspace-card financial-summary-card" aria-label="Financial Adjudication Summary">
-            <div className="card-header-flex">
-              <div className="header-title-box">
-                <Scale size={18} className="text-primary" />
-                <h3>3. Financial Adjudication Summary</h3>
-              </div>
-              <span className={`status-pill ${getStatusBadgeClass(currentClaim?.status)}`}>
-                {currentClaim?.status?.replace(/_/g, ' ')}
-              </span>
-            </div>
-
-            <div className="card-body">
-              <div className="financial-kpi-grid">
-                <div className="kpi-box kpi-claimed">
-                  <span className="kpi-label">TOTAL CLAIMED</span>
-                  <span className="kpi-val font-mono">{formatInr(currentLedger.totalClaimedPaise)}</span>
-                  <span className="kpi-sub">Original Invoice Amount</span>
-                </div>
-
-                <div className="kpi-box kpi-disallowed">
-                  <span className="kpi-label">TOTAL DISALLOWANCE</span>
-                  <span className="kpi-val font-mono text-danger">
-                    -{formatInr(
-                      currentLedger.totalExcludedNonPayablePaise +
-                        currentLedger.totalProportionateDisallowancePaise +
-                        currentLedger.totalSublimitDisallowancePaise
-                    )}
-                  </span>
-                  <span className="kpi-sub">Exclusions & Sublimit Capping</span>
-                </div>
-
-                <div className="kpi-box kpi-payable">
-                  <span className="kpi-label">ESTIMATED INSURER PAYABLE</span>
-                  <span className="kpi-val font-mono font-bold text-success">
-                    {formatInr(currentLedger.finalInsurerPayablePaise)}
-                  </span>
-                  <span className="kpi-sub">Subject to Policy Deductible & Copay</span>
-                </div>
-
-                <div className="kpi-box kpi-patient">
-                  <span className="kpi-label">PATIENT OUT-OF-POCKET</span>
-                  <span className="kpi-val font-mono font-bold text-danger">
-                    {formatInr(currentLedger.totalPatientResponsibilityPaise)}
-                  </span>
-                  <span className="kpi-sub">Disallowed + Co-Pay + Deductibles</span>
-                </div>
-              </div>
             </div>
           </section>
         )}
@@ -541,10 +535,10 @@ export default function ClaimAdjudicationPage({
             <div className="card-header-flex">
               <div className="header-title-box">
                 <FileText size={18} className="text-primary" />
-                <h3>4. Itemized Adjustments Ledger</h3>
+                <h3>3. Itemized Breakdown</h3>
               </div>
               <span className="text-sm text-secondary">
-                Click any row chevron to inspect grounded source clause & calculation trace
+                Click any line item for details
               </span>
             </div>
 
@@ -565,7 +559,7 @@ export default function ClaimAdjudicationPage({
             <div className="card-header-flex">
               <div className="header-title-box">
                 <Shield size={18} className="text-primary" />
-                <h3>5. Policy Clause Grounding & Citation Audit</h3>
+                <h3>4. Policy Evidence</h3>
               </div>
             </div>
 

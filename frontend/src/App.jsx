@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import UploadPage from './pages/UploadPage';
 import CoverageSummaryPage from './pages/CoverageSummaryPage';
 import HospitalDiscoveryPage from './pages/HospitalDiscoveryPage';
@@ -16,6 +17,9 @@ import { getPolicy } from './services/api';
 
 export default function App() {
   const { user, linkCurrentPolicy } = useAuth();
+
+  // Left-Side Navigation State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Auth & Profile Modals
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -264,77 +268,106 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell">
-      <Navbar
+    <div className={`app-shell ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      {/* Full Page Background Video */}
+      <video
+        className="full-page-bg-video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        aria-hidden="true"
+      >
+        <source src="/vid69.mp4" type="video/mp4" />
+      </video>
+
+      <Sidebar
         currentView={currentView}
         activePolicy={activePolicy}
         onGoHome={handleGoHome}
-        onGoHowItWorks={handleGoHowItWorks}
+        onGoToClaims={handleGoToClaims}
+        onOpenSavedDocuments={() => setIsSavedDocsOpen(true)}
         onBackToPolicy={() => setCurrentView('summary')}
-        onResetPolicy={handleGoHome}
         onGoToHospitals={() => setCurrentView('discovery')}
         onGoToJourney={handleGoToJourney}
-        onGoToClaims={handleGoToClaims}
-        onOpenAuth={(mode) => handleOpenAuth(mode)}
-        onOpenProfile={handleOpenProfile}
+        onGoHowItWorks={handleGoHowItWorks}
         onOpenAssistant={() => setIsAssistantOpen(true)}
-        onOpenSavedDocuments={() => setIsSavedDocsOpen(true)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
 
-      <div className="page">
-        <div className="canvas">
-          <main>
-            {currentView === 'how-it-works' && (
-              <HowItWorksPage onGoHome={handleGoHome} />
-            )}
+      <div className="app-main-layout">
+        <Navbar
+          currentView={currentView}
+          activePolicy={activePolicy}
+          onGoHome={handleGoHome}
+          onGoHowItWorks={handleGoHowItWorks}
+          onBackToPolicy={() => setCurrentView('summary')}
+          onResetPolicy={handleGoHome}
+          onGoToHospitals={() => setCurrentView('discovery')}
+          onGoToJourney={handleGoToJourney}
+          onGoToClaims={handleGoToClaims}
+          onOpenAuth={(mode) => handleOpenAuth(mode)}
+          onOpenProfile={handleOpenProfile}
+          onOpenAssistant={() => setIsAssistantOpen(true)}
+          onOpenSavedDocuments={() => setIsSavedDocsOpen(true)}
+        />
 
-            {currentView === 'upload' && (
-              <UploadPage
-                onPolicyLoaded={handlePolicyLoaded}
-                onRequireAuth={(msg) => handleOpenAuth('login', msg)}
-              />
-            )}
+        <div className="page">
+          <div className="canvas">
+            <main>
+              {currentView === 'how-it-works' && (
+                <HowItWorksPage onGoHome={handleGoHome} />
+              )}
 
-            {currentView === 'summary' && activePolicy && (
-              <CoverageSummaryPage
-                policy={activePolicy}
-                onPolicyConfirmed={handlePolicyConfirmed}
-                onBackToUpload={handleGoHome}
-                onOpenAssistant={() => setIsAssistantOpen(true)}
-              />
-            )}
+              {currentView === 'upload' && (
+                <UploadPage
+                  onPolicyLoaded={handlePolicyLoaded}
+                  onRequireAuth={(msg) => handleOpenAuth('login', msg)}
+                />
+              )}
 
-            {currentView === 'discovery' && activePolicy && (
-              <HospitalDiscoveryPage
-                policy={activePolicy}
-                onBackToPolicy={() => setCurrentView('summary')}
-                onResetPolicy={handleGoHome}
-                onTrackJourney={handleTrackCareJourney}
-                onRequireAuth={() => handleOpenAuth('signup', 'Please sign up or log in to bookmark hospitals.')}
-                onViewMethodology={() => setCurrentView('how-it-works')}
-                onDiscoveryContextChange={setDiscoveryContext}
-              />
-            )}
+              {currentView === 'summary' && activePolicy && (
+                <CoverageSummaryPage
+                  policy={activePolicy}
+                  onPolicyConfirmed={handlePolicyConfirmed}
+                  onBackToUpload={handleGoHome}
+                  onOpenAssistant={() => setIsAssistantOpen(true)}
+                />
+              )}
 
-            {currentView === 'journey' && activePolicy && (
-              <CareJourneyPage
-                policy={activePolicy}
-                hospital={journeyHospital}
-                procedure={journeyProcedure}
-                roomType={journeyRoom}
-                onBackToHospitals={() => setCurrentView('discovery')}
-                onBackToPolicy={() => setCurrentView('summary')}
-              />
-            )}
+              {currentView === 'discovery' && activePolicy && (
+                <HospitalDiscoveryPage
+                  policy={activePolicy}
+                  onBackToPolicy={() => setCurrentView('summary')}
+                  onResetPolicy={handleGoHome}
+                  onTrackJourney={handleTrackCareJourney}
+                  onRequireAuth={() => handleOpenAuth('signup', 'Please sign up or log in to bookmark hospitals.')}
+                  onViewMethodology={() => setCurrentView('how-it-works')}
+                  onDiscoveryContextChange={setDiscoveryContext}
+                />
+              )}
 
-            {currentView === 'claims' && (
-              <ClaimAdjudicationPage
-                activePolicy={activePolicy}
-                onBackToPolicy={() => setCurrentView('summary')}
-                onGoToUpload={handleGoHome}
-              />
-            )}
-          </main>
+              {currentView === 'journey' && activePolicy && (
+                <CareJourneyPage
+                  policy={activePolicy}
+                  hospital={journeyHospital}
+                  procedure={journeyProcedure}
+                  roomType={journeyRoom}
+                  onBackToHospitals={() => setCurrentView('discovery')}
+                  onBackToPolicy={() => setCurrentView('summary')}
+                />
+              )}
+
+              {currentView === 'claims' && (
+                <ClaimAdjudicationPage
+                  activePolicy={activePolicy}
+                  onBackToPolicy={() => setCurrentView('summary')}
+                  onGoToUpload={handleGoHome}
+                />
+              )}
+            </main>
+          </div>
         </div>
       </div>
 

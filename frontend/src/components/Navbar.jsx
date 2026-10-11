@@ -43,34 +43,24 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop Header Utility Controls */}
         <div className="nav-links desktop-nav-links">
+          {activePolicy && (
+            <div className="navbar-active-policy-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '4px 12px', background: '#f0fdfa', border: '1px solid #99f6e4', borderRadius: 'var(--radius-pill)', fontSize: '12px' }}>
+              <span style={{ color: '#0f766e', fontWeight: 700 }}>
+                {activePolicy.insurer || 'Policy'}: {activePolicy.planName || 'Active Plan'}
+              </span>
+              <button
+                type="button"
+                onClick={onResetPolicy || onGoHome}
+                style={{ background: 'none', border: 'none', padding: 0, color: '#0d9488', cursor: 'pointer', fontSize: '11px', fontWeight: 600, textDecoration: 'underline' }}
+              >
+                Change
+              </button>
+            </div>
+          )}
+
           <LanguageSelector compact />
-
-          <button
-            type="button"
-            onClick={onGoHome}
-            className={`nav-link-btn ${currentView === 'upload' ? 'active' : ''}`}
-          >
-            {t('navbar.uploadPolicy')}
-          </button>
-
-          <button
-            type="button"
-            onClick={onGoToClaims}
-            className={`nav-link-btn ${currentView === 'claims' ? 'active' : ''}`}
-          >
-            Claim Intelligence
-          </button>
-
-          <button
-            type="button"
-            onClick={onOpenSavedDocuments}
-            className="nav-link-btn"
-            title="Saved Documents & Bills Vault"
-          >
-            Saved Documents
-          </button>
 
           <button
             type="button"
@@ -82,70 +72,6 @@ export default function Navbar({
             <Mic size={14} />
             <span>Ask SehatSure</span>
           </button>
-
-          <button
-            type="button"
-            onClick={onGoHowItWorks}
-            className={`nav-link-btn nav-link-btn-highlight ${currentView === 'how-it-works' ? 'active' : ''}`}
-          >
-            {t('navbar.howItWorks', 'How It Works')}
-          </button>
-
-          {activePolicy && (
-            <button
-              type="button"
-              onClick={onBackToPolicy}
-              className={`nav-link-btn ${currentView === 'summary' ? 'active' : ''}`}
-            >
-              {t('navbar.policySummary')}
-            </button>
-          )}
-
-          {activePolicy && activePolicy.confirmedByUser && (
-            <>
-              <button
-                type="button"
-                onClick={onGoToHospitals}
-                className={`nav-link-btn ${currentView === 'discovery' ? 'active' : ''}`}
-              >
-                {t('navbar.hospitals')}
-              </button>
-              <button
-                type="button"
-                onClick={onGoToJourney}
-                className={`nav-link-btn ${currentView === 'journey' ? 'active' : ''}`}
-              >
-                {t('navbar.careJourney')}
-              </button>
-            </>
-          )}
-
-          {currentView !== 'upload' && currentView !== 'how-it-works' ? (
-            <button
-              type="button"
-              onClick={onResetPolicy || onGoHome}
-              className="pill-btn pill-btn-ghost nav-cta"
-            >
-              {t('navbar.changePolicy')}
-            </button>
-          ) : (
-            <a
-              href="#demo-section"
-              onClick={(e) => {
-                if (currentView === 'how-it-works') {
-                  e.preventDefault();
-                  onGoHome();
-                  setTimeout(() => {
-                    const el = document.getElementById('demo-section');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }, 120);
-                }
-              }}
-              className="pill-btn pill-btn-primary nav-cta"
-            >
-              {t('navbar.demoPolicies')}
-            </a>
-          )}
 
           {/* Profile / Auth Button at end of Navbar */}
           {user ? (

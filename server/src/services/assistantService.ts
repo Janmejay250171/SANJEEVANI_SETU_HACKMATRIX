@@ -41,6 +41,9 @@ export class AssistantService {
   }
 
   private getModel(modelName: string) {
+    if (process.env.NODE_ENV === 'test' && !process.env.TEST_GEMINI_LIVE) {
+      return null;
+    }
     if (!this.genAI) {
       const key = config.geminiApiKey || process.env.GEMINI_API_KEY;
       if (key && key.trim()) {
@@ -148,36 +151,28 @@ export class AssistantService {
       }
     }
 
-    // 3. Assemble Gemini Prompt with Strict Grounding Guardrails
+    // 3. Assemble Gemini Prompt with Strict Grounding Guardrails & Conciseness
     const systemPrompt = `You are "Ask SehatSure", an authoritative, compassionate, and precise health insurance & care navigation intelligence assistant for Indian healthcare.
-Your role is to explain insurance policies, hospital network statuses, treatment costs, and claim deductions to users in clear, empathetic language.
 
-CRITICAL INSTRUCTIONS & GUARDRAILS:
-1. GROUNDED KNOWLEDGE: Use the provided context facts below as the ground truth.
-   - If the user asks about an insurance policy and no policy is uploaded/selected, state clearly: "No policy has been uploaded or selected yet. Please upload your policy schedule or select a demo policy so I can check your exact coverage terms."
-   - If a policy IS provided, strictly adhere to its stated room rent limits, ICU limits, co-pay clauses, proportionate deduction rules, and exclusions.
-   - NEVER invent or guess a room rent cap, deductible, or co-payment percentage. If it is null or not stated in the policy, state that it is not specified in the document.
-2. CLAIM ADJUDICATION RULES:
-   - When explaining claim deductions, refer to the deterministic adjudication rules:
-     * Room rent excess triggers proportionate deduction across associated medical charges.
-     * Non-payable hospital items (gloves, sanitizer, registration fees) are excluded per IRDAI non-payable schedules.
-     * Unproven/alternative therapies without empirical validation require manual TPA review.
-     * Amendments apply based on the treatment date relative to the amendment effective date.
-3. HOSPITAL & NETWORK RECOMMENDATIONS:
-   - When suggesting or answering questions about hospitals for any medical procedure, treatment, or city, you MUST recommend ONLY the facilities explicitly provided under "SEHATSURE TOP RECOMMENDED HOSPITALS" in the context facts below.
-   - You MUST NEVER invent, hallucinate, or suggest unlisted hospitals (e.g. do NOT invent "Jeevan Jyoti Hospital", "Sanjeevani Nursing Home", "Surya Hospitals", or any names not listed in the context).
-   - Quote the exact facility names, locations, and cashless coverage terms as provided (e.g., "Metro Superspeciality Hospital And Trauma Centre (Wagholi)", "Sanjeevanee Hospital Icu & Trauma Unit (Chakan)", "Anand Orthopedic Hospital (Moshi)").
-   - Mention that these facilities provide 100% cashless coverage under the user's active policy with minimized/₹0 out-of-pocket costs and optimal specialty fit.
-   - If responding in Hindi, translate the advice naturally, but DO NOT alter or substitute hospital names; use the exact hospital names from the list.
-4. MEDICAL & LEGAL DISCLAIMER:
-   - You provide financial decision support and policy term clarification, NOT formal medical diagnoses or binding insurer claim guarantees.
+STRICT CONCISENESS & LENGTH POLICY (MANDATORY):
+1. ANSWER ONLY WHAT WAS ASKED:
+   - Provide a direct answer to the user's specific question immediately.
+   - Do NOT output unprompted feature lists, generic introductions, or unsolicited hospital recommendations.
+   - Do NOT append repeated disclaimers to every response.
+2. STRICT LENGTH TARGETS:
+   - Simple factual question: 1 to 2 short sentences (under 35 words).
+   - Standard insurance & claim question: 2 to 4 short sentences (strictly 30 to 70 words).
+   - Checklist/document request: A concise bullet list of 3-4 items only.
+   - Detailed explanation requested: Provide the requested depth clearly and structured.
+3. GROUNDED KNOWLEDGE:
+   - If no policy is uploaded/selected and user asks about policy terms, state: "No policy has been uploaded or selected yet. Please upload your policy schedule or select a demo policy so I can check your exact coverage terms."
+   - If policy IS provided, strictly use stated numbers. NEVER invent values. If not stated, say: "Not specified in the uploaded policy."
+4. HOSPITAL RECOMMENDATIONS:
+   - ONLY recommend hospitals when the user explicitly asks about hospitals or cashless network facilities.
+   - You MUST recommend ONLY facilities listed under "SEHATSURE TOP RECOMMENDED HOSPITALS" in the context below. NEVER invent unlisted names.
 5. LANGUAGE PREFERENCE:
-   - If language is "hi", provide your response in polite, clear Hindi (using Devanagari or standard Hinglish where appropriate).
-   - If language is "en", provide your response in clear, concise English.
-6. CONCISENESS & CLARITY:
-   - Keep answers focused (2 to 4 concise paragraphs or bullet points).
-   - Highlight monetary values in Rupees (₹).
-   - Ensure the answer can be read aloud comfortably.`;
+   - If language is "hi", answer in polite, crisp Hindi using exact hospital names.
+   - If language is "en", answer in clear, concise English.`;
 
     const factsPrompt = `AVAILABLE SEHATSURE CONTEXT:
 Current Application Screen: ${context.currentView || 'General Application'}
@@ -671,14 +666,14 @@ ${sampleHospitals.map((h: any, i: number) => `${i + 1}. **${h.hospital_name || h
     if (view === 'claims') {
       return [
         'Why was the surgeon fee proportionately reduced?',
-        'Which hospital bill items are non-payable by insurance?',
+        'Which hospital bill items are non-payable?',
         'How does a policy amendment change my payable amount?'
       ];
     }
     if (view === 'discovery') {
       return [
         'Which hospitals offer cashless settlement for my insurer?',
-        'What is the typical cost for this procedure in private hospitals?',
+        'What is the typical cost for this procedure?',
         'How do I verify if my hospital is an active network partner?'
       ];
     }
@@ -693,13 +688,12 @@ ${sampleHospitals.map((h: any, i: number) => `${i + 1}. **${h.hospital_name || h
       return [
         'What is my room rent and ICU limit?',
         'Does my policy have a proportionate deduction clause?',
-        'What is my co-payment for non-network hospitals?',
-        'Are pre-existing conditions covered?'
+        'What is my co-payment for non-network hospitals?'
       ];
     }
     return [
+      'What documents do I need to analyze my health insurance?',
       'How does SehatSure calculate out-of-pocket expenses?',
-      'What documents do I need to upload to analyze my policy?',
       'Can I compare private and government hospital rates?'
     ];
   }
@@ -729,42 +723,77 @@ ${sampleHospitals.map((h: any, i: number) => `${i + 1}. **${h.hospital_name || h
     let answer = '';
     let provenance: AssistantChatResponse['provenance'] = 'System Assessment';
 
-    if (/room.*rent|room.*limit|deluxe/i.test(lower)) {
+    // 1. Document checklist requests
+    if (/document|what documents|upload.*analyze|analyze.*policy/i.test(lower)) {
+      provenance = 'System Assessment';
+      answer = 'Upload your health insurance policy PDF, including the policy schedule and any endorsements. I’ll extract the key coverage terms and flag details that need review.';
+    }
+    // 2. Explicit request for detailed explanation
+    else if (/explain in detail|detailed explanation|step-by-step|full breakdown/i.test(lower)) {
+      provenance = context.currentView === 'claims' ? 'Claim Engine' : 'Policy Grounded';
+      answer = 'Your claim adjudication applies deterministic rules in sequence: first, non-payable items are disallowed per IRDAI schedules; second, proportionate deductions apply to associated charges if your room category exceeded your room-rent limit; finally, policy deductibles and co-payments are deducted from the eligible balance.';
+    }
+    // 3. Unuploaded policy guardrail for policy queries
+    else if (!policyData && /sum insured|room rent|copay|co-pay|deductible|exclusion|limit|coverage|clause|policy/i.test(lower)) {
+      provenance = 'System Assessment';
+      answer = 'No policy has been uploaded or selected yet. Please upload your policy schedule or select a demo policy so I can check your exact coverage terms.';
+    }
+    // 4. Out-of-pocket calculation query
+    else if (/out-of-pocket|oop|calculate.*expense|how.*expense.*calculated/i.test(lower)) {
+      provenance = 'Claim Engine';
+      answer = 'Out-of-pocket expense equals your total hospital bill minus covered charges, non-payable items, proportionate deductions, and your applicable co-pay or deductible. Review the claim breakdown for the itemized calculation.';
+    }
+    // 5. Room rent limit query
+    else if (/room.*rent|room.*limit|deluxe/i.test(lower)) {
       if (policyData?.roomRentLimit) {
         provenance = 'Policy Grounded';
-        answer = `Your policy specifies a room rent limit of ${JSON.stringify(policyData.roomRentLimit.value || policyData.roomRentLimit)}. If you choose a higher room category, proportionate deduction may apply to your overall hospital bill.`;
+        const limitStr = typeof policyData.roomRentLimit === 'object'
+          ? (policyData.roomRentLimit.value ? `${policyData.roomRentLimit.value}` : JSON.stringify(policyData.roomRentLimit))
+          : policyData.roomRentLimit;
+        answer = `Your extracted policy lists a room-rent limit of ${limitStr}. Check the displayed clause before relying on it; the amount may need confirmation if extraction is uncertain.`;
       } else {
         answer = 'No room rent limit is recorded for your current policy. Please verify in your Policy Schedule or upload your policy PDF to check.';
       }
-    } else if (/co-?pay/i.test(lower)) {
+    }
+    // 6. Co-pay query
+    else if (/co-?pay/i.test(lower)) {
       if (policyData) {
         provenance = 'Policy Grounded';
         const copay = policyData.copay !== null && policyData.copay !== undefined ? `${policyData.copay}%` : '0% (Nil)';
-        answer = `Your policy specifies a base co-payment of ${copay} for network hospital admissions. Non-network hospital co-pay is ${policyData.nonNetworkCopay ? policyData.nonNetworkCopay + '%' : 'not specified in the document'}.`;
+        answer = `Your policy specifies a base network co-payment of ${copay}. ${policyData.nonNetworkCopay ? `Non-network co-payment is ${policyData.nonNetworkCopay}%.` : 'Non-network co-pay is not specified in the document.'}`;
       } else {
         answer = 'Co-payment requires a policy to be uploaded. Typically, private policies carry 0% to 20% co-pay depending on age and hospital network.';
       }
-    } else if (/claim|deduct|disallow|cholecystectomy/i.test(lower)) {
+    }
+    // 7. Claim deductions query
+    else if (/claim|deduct|disallow|cholecystectomy|surgeon fee/i.test(lower)) {
       provenance = 'Claim Engine';
-    } else if (/hospital|cashless|network|हॉस्पिटल|अस्पताल|दवाखाना|कैशलेस|ट्रांसप्लांट|इलाज|knee|घुटने|घुटनों/i.test(lower)) {
+      if (/proportionate|surgeon fee|room rent/i.test(lower)) {
+        answer = 'The surgeon fee was proportionately reduced because the chosen room category exceeded your policy room-rent entitlement. To prevent this deduction, select an entitled room category.';
+      } else if (/non-payable|gloves|sanitizer/i.test(lower)) {
+        answer = 'Administrative, hygiene, and consumable items such as gloves and registration fees are non-payable per standard IRDAI schedules.';
+      } else {
+        answer = 'Claim deductions occur due to room-rent excess, statutory non-payable consumables, or applicable co-pays and deductibles. Check the itemized calculation table for exact deductions.';
+      }
+    }
+    // 8. Hospital & Cashless network query (concise, no unsolicited card dumps)
+    else if (/hospital|cashless|network|हॉस्पिटल|अस्पताल|दवाखाना|कैशलेस|ट्रांसप्लांट|इलाज|knee|घुटने|घुटनों/i.test(lower)) {
       provenance = 'Hospital Directory';
       if (context.recommendedHospitals && context.recommendedHospitals.length > 0) {
-        const top = context.recommendedHospitals.slice(0, 3);
+        const top = context.recommendedHospitals.slice(0, 2);
         if (language === 'hi') {
-          answer = `आपकी चुनी गई पॉलिसी के लिए SehatSure द्वारा सत्यापित शीर्ष अस्पताल ये हैं:\n\n` +
-            top.map((h: any, i: number) => `${i + 1}. **${h.name}** (${h.locality || 'पुणे'})\n   - सुविधा: ${h.networkStatus || '100% कैशलेस कवर'}\n   - अनुमानित जेब खर्च: ₹${h.patientPayable ?? 0}\n   - स्पेशियलिटी स्कोर: ${h.score ?? 96}/100`).join('\n\n') +
-            `\n\nइन अस्पतालों में आपकी पॉलिसी के तहत 100% कैशलेस सुविधा और न्यूनतम जेब खर्च सुनिश्चित किया गया है।`;
+          answer = `आपकी पॉलिसी के तहत शीर्ष सत्यापित कैशलेस अस्पताल: ${top.map((h: any) => `${h.name} (${h.locality || 'पुणे'})`).join(' और ')}। ये अस्पताल 100% कैशलेस सुविधा और न्यूनतम जेब खर्च प्रदान करते हैं।`;
         } else {
-          answer = `Based on SehatSure Specialty Fit under your policy, the top recommended network hospitals are:\n\n` +
-            top.map((h: any, i: number) => `${i + 1}. **${h.name}** (${h.locality || 'Pune'})\n   - Coverage: ${h.networkStatus || '100% Cashless Covered'}\n   - Expected Out-of-Pocket: ₹${h.patientPayable ?? 0}\n   - Specialty Score: ${h.score ?? 96}/100`).join('\n\n') +
-            `\n\nThese facilities provide verified 100% cashless treatment with zero proportionate deduction under your policy.`;
+          answer = `Top recommended network hospitals under your policy are ${top.map((h: any) => `${h.name} (${h.locality || 'Pune'})`).join(' and ')}. Both offer verified cashless admission with zero proportionate deduction under your policy.`;
         }
       } else {
         answer = language === 'hi'
-          ? 'सेहतश्योर भारत भर में 52,960 सत्यापित अस्पतालों को इंडेक्स करता है। अपनी प्रक्रिया और शहर का चयन करें ताकि आपकी पॉलिसी के लिए सर्वश्रेष्ठ कैशलेस और स्पेशियलिटी फिट अस्पताल दिखाए जा सकें।'
-          : 'SehatSure indexes over 52,900 hospitals across India. Cashless admission is available only at empanelled network hospitals approved by your insurer and TPA desk.';
+          ? 'सेहतश्योर भारत भर में 52,900 से अधिक अस्पतालों को इंडेक्स करता है। कैशलेस सुविधा आपके बीमाकर्ता द्वारा अनुमोदित नेटवर्क अस्पतालों में ही उपलब्ध है।'
+          : 'SehatSure indexes over 52,900 hospitals across India. Cashless admission is available at empanelled network hospitals approved by your insurer and TPA desk.';
       }
-    } else {
+    }
+    // 9. Default concise greeting / clarification
+    else {
       answer = language === 'hi'
         ? 'नमस्ते! मैं सेहतश्योर का वॉयस एवं टेक्स्ट सहायक हूँ। आप अपनी बीमा पॉलिसी, रूम रेंट सीमा, अस्पताल बिल कटौती या कैशलेस नेटवर्क के बारे में पूछ सकते हैं।'
         : 'Hello! I am Ask SehatSure, your healthcare and insurance intelligence assistant. You can ask me about your policy coverage, room rent limits, hospital network status, or claim deductions.';

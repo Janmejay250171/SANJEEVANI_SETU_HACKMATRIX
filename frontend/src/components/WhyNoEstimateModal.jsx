@@ -1,19 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   X,
-  Building2,
   AlertTriangle,
   ShieldCheck,
   Stethoscope,
   Info,
   BookOpen,
-  ArrowRight,
-  HelpCircle,
-  Database,
-  ExternalLink,
   Cpu,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export default function WhyNoEstimateModal({
@@ -29,6 +26,7 @@ export default function WhyNoEstimateModal({
   onViewMethodology
 }) {
   const { t } = useTranslation();
+  const [showDetails, setShowDetails] = useState(false);
 
   if (!isOpen) return null;
 
@@ -60,14 +58,14 @@ export default function WhyNoEstimateModal({
 
   return (
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="modal-dialog modal-dialog-lg" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '660px' }}>
+      <div className="modal-dialog modal-dialog-lg" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '620px' }}>
         {/* Head */}
-        <div className="modal-head" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
+        <div className="modal-head" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '14px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
-                width: '36px',
-                height: '36px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 background: hasModelEstimate ? '#f0fdfa' : '#fffbeb',
                 border: hasModelEstimate ? '1px solid #99f6e4' : '1px solid #fde68a',
@@ -77,47 +75,39 @@ export default function WhyNoEstimateModal({
                 flexShrink: 0
               }}>
                 {hasModelEstimate ? (
-                  <Cpu size={20} style={{ color: '#0f766e' }} />
+                  <Cpu size={18} style={{ color: '#0f766e' }} />
                 ) : (
-                  <AlertTriangle size={20} style={{ color: '#d97706' }} />
+                  <AlertTriangle size={18} style={{ color: '#d97706' }} />
                 )}
               </div>
               <div>
-                <h2 className="modal-title" style={{ fontSize: '18px', margin: 0 }}>
+                <h2 className="modal-title" style={{ fontSize: '16px', margin: 0 }}>
                   {isProcedureMissing
-                    ? 'Procedure Required for Cost Estimate'
+                    ? 'Procedure Selection Required'
                     : hasModelEstimate
-                      ? 'Treatment-Cost Intelligence: Model Reference Available'
+                      ? 'Treatment-Cost Intelligence'
                       : 'Cost Estimate Unavailable'}
                 </h2>
-                <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '2px' }}>
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '1px' }}>
                   {hospName} {hospCity ? `• ${hospCity}` : ''}
                 </div>
               </div>
             </div>
+
             <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', marginTop: '8px' }}>
               {specName && (
-                <span className="pill-label" style={{ fontSize: '11px', background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1' }}>
-                  Specialty: {specName}
+                <span className="pill-label" style={{ fontSize: '10.5px', background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1' }}>
+                  {specName}
                 </span>
               )}
               {procName && !isProcedureMissing && (
-                <span className="pill-label" style={{ fontSize: '11px', background: '#f8fafc', color: '#0f766e', border: '1px solid #cbd5e1', fontWeight: 600 }}>
-                  Procedure: {procName}
+                <span className="pill-label" style={{ fontSize: '10.5px', background: '#f8fafc', color: '#0f766e', border: '1px solid #cbd5e1', fontWeight: 600 }}>
+                  {procName}
                 </span>
               )}
-              {hasModelEstimate ? (
-                <>
-                  <span className="pill-label" style={{ fontSize: '11px', background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', fontWeight: 700 }}>
-                    Status: No Verified Benchmark
-                  </span>
-                  <span className="pill-label" style={{ fontSize: '11px', background: '#ccfbf1', color: '#0f766e', border: '1px solid #99f6e4', fontWeight: 700 }}>
-                    AI Model Estimate Available
-                  </span>
-                </>
-              ) : (
-                <span className="pill-label" style={{ fontSize: '11px', background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a' }}>
-                  Status: No Reliable Cost Benchmark
+              {hasModelEstimate && (
+                <span className="pill-label" style={{ fontSize: '10.5px', background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', fontWeight: 700 }}>
+                  No Verified Statutory Benchmark
                 </span>
               )}
             </div>
@@ -134,300 +124,209 @@ export default function WhyNoEstimateModal({
         </div>
 
         {/* Modal Body */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '14px 0' }}>
           {hasModelEstimate ? (
-            /* =========================================================================
-               LEVEL 2 PRESENTATION: NO VERIFIED BENCHMARK + AI STATISTICAL ESTIMATE
-               ========================================================================= */
             <>
-              {/* Hierarchy Notice: No Verified Benchmark */}
+              {/* Primary Metric Banner: Amount is prominent */}
               <div style={{
-                background: '#fffbeb',
-                border: '1.5px solid #fde68a',
-                borderRadius: '6px',
-                padding: '12px 14px',
+                background: '#ffffff',
+                border: '1.5px solid #0f766e',
+                borderRadius: '8px',
+                padding: '14px 16px',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: '4px'
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '10px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#92400e', fontWeight: 700, fontSize: '12.5px' }}>
-                  <AlertTriangle size={15} style={{ color: '#d97706' }} />
-                  <span>NO VERIFIED BENCHMARK</span>
+                <div>
+                  <div style={{ fontSize: '11px', color: '#0f766e', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Estimated Treatment Cost
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
+                    Statistical pattern for {tierName} {hospCity ? `(${hospCity})` : ''}
+                  </div>
                 </div>
-                <div style={{ fontSize: '12px', color: '#78350f', lineHeight: 1.45 }}>
-                  Government or statutory healthcare tariff schedules (such as AB-PMJAY or CGHS) are currently unavailable for <strong>"{procName}"</strong> in authoritative reference documents. SehatSure will not substitute an unrelated clinical code.
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '26px', fontWeight: 900, color: '#0f766e', lineHeight: 1.1 }}>
+                    ~{ml.displayEstimate}
+                  </div>
+                  <div style={{ marginTop: '3px' }}>
+                    {reliabilityBadge}
+                  </div>
                 </div>
               </div>
 
-              {/* Primary Metric: AI Statistical Cost Estimate */}
+              {/* Key Limitation & Boundaries */}
               <div style={{
+                fontSize: '11.5px',
+                color: '#64748b',
                 background: '#f8fafc',
-                border: '1.5px solid #0f766e',
+                border: '1px solid #e2e8f0',
                 borderRadius: '6px',
-                padding: '14px 16px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px'
+                padding: '8px 12px',
+                lineHeight: 1.45
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f766e', fontWeight: 800, fontSize: '13px' }}>
-                    <Cpu size={16} />
-                    <span>AI STATISTICAL COST ESTIMATE</span>
-                    <span style={{ fontSize: '10px', background: '#ccfbf1', color: '#0f766e', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                      v{ml.modelVersion}
-                    </span>
-                  </div>
-                  {reliabilityBadge}
-                </div>
+                <strong>Data limitation:</strong> Statistical estimate based on private hospital tariffs. Not a binding hospital quote or insurance payout guarantee.
+              </div>
 
+              {/* Initial Primary Cost Driver (Top 1) */}
+              {ml.costDrivers && ml.costDrivers.length > 0 && !showDetails && (
                 <div style={{
-                  background: '#ffffff',
+                  background: '#f1f5f9',
                   border: '1px solid #e2e8f0',
                   borderRadius: '6px',
-                  padding: '12px 14px',
+                  padding: '8px 12px',
+                  fontSize: '11.5px',
                   display: 'flex',
                   justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <span><strong>Primary cost driver:</strong> {ml.costDrivers[0].feature} ({ml.costDrivers[0].percentageContribution}%)</span>
+                  <span style={{ fontWeight: 700, color: ml.costDrivers[0].direction === 'above_baseline' ? '#166534' : '#b45309' }}>
+                    {ml.costDrivers[0].direction === 'above_baseline' ? '+' : '−'}₹{Math.abs(ml.costDrivers[0].impactAmount).toLocaleString('en-IN')}
+                  </span>
+                </div>
+              )}
+
+              {/* Progressive Disclosure Toggle */}
+              <button
+                type="button"
+                onClick={() => setShowDetails(!showDetails)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '6px 0',
+                  color: '#0f766e',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '8px'
-                }}>
-                  <div>
-                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
-                      ESTIMATED TREATMENT EXPENSE (SCENARIO PATTERN)
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#475569', marginTop: '2px' }}>
-                      Based on structured private hospital tariff patterns for {tierName} {hospCity ? `(${hospCity})` : ''}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f766e' }}>
-                      ~{ml.displayEstimate}
-                    </div>
-                    <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>
-                      Model-based estimate from structured treatment-cost data
-                    </div>
-                  </div>
-                </div>
-
-                {/* Scope Note: Not a hospital-specific quote */}
-                <div style={{ fontSize: '11px', color: '#475569', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '4px', padding: '7px 10px', lineHeight: 1.4 }}>
-                  <strong>Scenario Scope:</strong> Estimated surgical expense for this scenario is ~{ml.displayEstimate}. This reflects generalized private facility tariffs in {tierName}, not a direct binding quote from {hospName}.
-                </div>
-
-                {/* Compact Provenance Section */}
-                <div style={{
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '5px',
-                  padding: '10px 12px',
-                  fontSize: '11.5px',
-                  color: '#334155',
-                  display: 'flex',
-                  flexDirection: 'column',
                   gap: '6px'
-                }}>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#1e293b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                    Model Support & Provenance
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '6px' }}>
-                    <div><strong>Model Support:</strong> {supportCount} relevant tariff records</div>
-                    <div><strong>Geography / Tier:</strong> {tierName} {hospCity ? `(${hospCity})` : ''}</div>
-                    <div><strong>Clinical Procedure:</strong> {ml.matchedProcedure || procName}</div>
-                    <div><strong>Specialty:</strong> {ml.canonicalSpecialty || specName}</div>
-                    <div><strong>Expected Stay:</strong> {ml.actualStayDays || 3} days (standard inpatient)</div>
-                  </div>
-                </div>
+                }}
+              >
+                {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                <span>{showDetails ? 'Hide details' : 'View cost drivers, provenance & methodology'}</span>
+              </button>
 
-                {/* Top Cost Drivers (genuinely from model) */}
-                {ml.costDrivers && ml.costDrivers.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#1e293b', marginBottom: '6px' }}>
-                      Why this estimate? Top Cost Drivers:
-                    </div>
+              {/* Collapsed Secondary Details */}
+              {showDetails && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {/* Complete Cost Drivers List */}
+                  {ml.costDrivers && ml.costDrivers.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase' }}>
+                        All Key Cost Drivers
+                      </div>
                       {ml.costDrivers.map((driver, idx) => {
                         const isAbove = driver.direction === 'above_baseline';
                         const sign = isAbove ? '+' : '−';
                         const impactFormatted = `₹${Math.abs(driver.impactAmount).toLocaleString('en-IN')}`;
-                        const badgeBg = driver.influence === 'strong' ? '#f3e8ff' : driver.influence === 'moderate' ? '#eff6ff' : '#f1f5f9';
-                        const badgeColor = driver.influence === 'strong' ? '#6b21a8' : driver.influence === 'moderate' ? '#1e40af' : '#475569';
-
                         return (
                           <div key={idx} style={{
                             background: '#ffffff',
                             border: '1px solid #e2e8f0',
                             borderRadius: '5px',
-                            padding: '7px 10px',
-                            fontSize: '11.5px'
+                            padding: '6px 10px',
+                            fontSize: '11px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: '#0f172a' }}>
-                                <span style={{ color: '#64748b' }}>{idx + 1}.</span>
-                                <span>{driver.feature}</span>
-                                <span style={{
-                                  fontSize: '9.5px',
-                                  padding: '1px 6px',
-                                  borderRadius: '8px',
-                                  background: badgeBg,
-                                  color: badgeColor,
-                                  fontWeight: 700
-                                }}>
-                                  {driver.influence.toUpperCase()}
-                                </span>
-                              </div>
-                              <div style={{ fontWeight: 800, color: isAbove ? '#166534' : '#b45309' }}>
-                                {sign}{impactFormatted} ({driver.percentageContribution}%)
-                              </div>
+                            <div>
+                              <strong>{driver.feature}</strong>: <span style={{ color: '#64748b' }}>{driver.explanation}</span>
                             </div>
-                            <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '2px' }}>
-                              {driver.explanation}
+                            <div style={{ fontWeight: 800, color: isAbove ? '#166534' : '#b45309', whiteSpace: 'nowrap', marginLeft: '8px' }}>
+                              {sign}{impactFormatted} ({driver.percentageContribution}%)
                             </div>
                           </div>
                         );
                       })}
                     </div>
+                  )}
+
+                  {/* Provenance & Scenario Details */}
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontSize: '11px',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: '6px',
+                    color: '#334155'
+                  }}>
+                    <div><strong>Dataset Support:</strong> {supportCount} records</div>
+                    <div><strong>Scenario:</strong> {tierName} · {procName}</div>
+                    <div><strong>Typical Stay:</strong> {ml.actualStayDays || 3} days</div>
+                    <div><strong>Model Version:</strong> v{ml.modelVersion}</div>
                   </div>
-                )}
 
-                {/* Small Disclaimer */}
-                <div style={{ fontSize: '10.5px', color: '#64748b', fontStyle: 'italic', lineHeight: 1.35 }}>
-                  Informational estimate — not a hospital quote, tariff, or guaranteed treatment cost.
+                  {/* Architectural Boundary Note */}
+                  <div style={{
+                    fontSize: '11px',
+                    color: '#475569',
+                    background: '#ecfdf5',
+                    border: '1px solid #a7f3d0',
+                    borderRadius: '6px',
+                    padding: '8px 10px',
+                    lineHeight: 1.4
+                  }}>
+                    <strong style={{ color: '#065f46' }}>Calculation Boundary:</strong> Hospital quotes and policy claim payouts require final itemized billing evaluated by the deterministic adjudication engine.
+                  </div>
                 </div>
-              </div>
-
-              {/* Strict Architecture Separation: Insurance Adjudication Boundary */}
-              <div style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                padding: '10px 14px',
-                fontSize: '11.5px',
-                color: '#334155',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '8px',
-                lineHeight: 1.45
-              }}>
-                <ShieldCheck size={18} style={{ color: '#0f766e', flexShrink: 0, marginTop: '2px' }} />
-                <div>
-                  <strong style={{ color: '#0f172a' }}>Strict Separation of Architectural Concerns:</strong> Insurance coverage and patient out-of-pocket shares are calculated strictly by the deterministic financial engine and require itemized hospital billing or policy schedules. The ML model estimates surgical expense patterns only and never calculates insurance payouts.
-                </div>
-              </div>
+              )}
             </>
           ) : (
             /* =========================================================================
-               LEVEL 3 PRESENTATION: INSUFFICIENT COST DATA OR UNSELECTED PROCEDURE
+               LEVEL 3 / PROCEDURE UNSELECTED PRESENTATION
                ========================================================================= */
             <>
-              {/* Main Context Banner */}
               <div style={{
-                background: '#f8fafc',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: 'var(--radius-sm, 6px)',
-                padding: '14px 16px',
-                fontSize: '13px',
-                lineHeight: 1.5,
-                color: '#1e293b'
+                background: '#fffbeb',
+                border: '1.5px solid #fde68a',
+                borderRadius: '8px',
+                padding: '12px 14px',
+                fontSize: '12.5px',
+                lineHeight: 1.45,
+                color: '#92400e'
               }}>
                 {isProcedureMissing ? (
                   <div>
-                    <strong>A specific procedure is required to calculate treatment costs.</strong> Hospital matching operates at the specialty department level, but treatment tariffs in healthcare are strictly procedure-specific.
+                    <strong>Procedure selection required.</strong> Select a clinical procedure above to compute verified cost estimates.
                   </div>
                 ) : (
                   <div>
-                    <strong>SehatSure refuses to guess or invent hospital prices.</strong> While <strong>{hospName}</strong> matches your medical department, verified procedure-level tariff benchmarks for <strong>"{procName}"</strong> are currently unavailable in authoritative reference schedules, and the ML model has insufficient training records to generalize reliably.
+                    <strong>Benchmark data unavailable.</strong> Authoritative government or hospital tariff schedules are unavailable for "{procName}". SehatSure does not fabricate estimates.
                   </div>
                 )}
               </div>
 
-              {/* Evidence & Match Summary Card */}
+              {/* Compact Evidence Summary */}
               <div style={{
-                background: '#ffffff',
+                background: '#f8fafc',
                 border: '1px solid #e2e8f0',
                 borderRadius: '6px',
-                padding: '12px 16px',
+                padding: '10px 12px',
+                fontSize: '11.5px',
+                color: '#475569',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '8px'
+                gap: '5px'
               }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Authoritative Matching & Evidence Summary
-                </span>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12.5px', color: '#334155' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ color: '#2563eb', fontWeight: 800 }}>•</span>
-                    <span>
-                      <strong>{specialtyMatchedCount}</strong> hospitals match the selected specialty ({specName || 'All'}).
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ color: '#dc2626', fontWeight: 800 }}>•</span>
-                    <span>
-                      <strong>{procedureMatchedCount}</strong> hospitals have verified procedure-level cost tariffs for {isProcedureMissing ? 'an unselected procedure' : `"${procName}"`}.
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ color: '#16a34a', fontWeight: 800 }}>•</span>
-                    <span>
-                      <strong>SehatSure will not substitute another procedure's cost</strong> (e.g., Angiography ≠ Angioplasty, EEG ≠ Craniotomy).
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* FIN-01 Cost Safety Standards */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  SehatSure Cost Safety Standards
-                </span>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
-                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '10px 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '12px', color: '#0f172a' }}>
-                      <span>🛡️</span>
-                      <span>No Artificial Fabrication</span>
-                    </div>
-                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px', lineHeight: 1.4 }}>
-                      Generic platforms often display inaccurate averages. SehatSure strictly requires published government tariffs, CGHS packages, or verified hospital tariff cards.
-                    </div>
-                  </div>
-
-                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '10px 12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '12px', color: '#0f172a' }}>
-                      <span>⚖️</span>
-                      <span>No Cross-Procedure Substitution</span>
-                    </div>
-                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px', lineHeight: 1.4 }}>
-                      A diagnostic test is never priced like a surgical intervention. Each clinical procedure must stand on its own verified tariff evidence.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Operational Notice */}
-              <div style={{
-                background: '#f0fdf4',
-                border: '1px solid #bbf7d0',
-                borderRadius: '6px',
-                padding: '10px 14px',
-                fontSize: '12px',
-                color: '#166534',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <ShieldCheck size={18} style={{ color: '#16a34a', flexShrink: 0 }} />
-                <span>
-                  <strong>Hospital matching & network analysis remain fully operational.</strong> You can still review hospital accreditation, bed count, room category options, and plan care journeys with cashless pre-authorization guidance.
-                </span>
+                <div>• <strong>{specialtyMatchedCount}</strong> facilities match department ({specName || 'All'})</div>
+                <div>• <strong>{procedureMatchedCount}</strong> facilities have verified tariffs for {isProcedureMissing ? 'selected procedure' : `"${procName}"`}</div>
+                <div>• SehatSure will not substitute unrelated clinical codes</div>
               </div>
             </>
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="modal-actions" style={{ justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', paddingTop: '16px', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div className="modal-actions" style={{ justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', paddingTop: '12px', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
             {onViewMethodology && (
               <button
                 type="button"
@@ -436,10 +335,10 @@ export default function WhyNoEstimateModal({
                   onClose();
                   onViewMethodology();
                 }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px' }}
               >
-                <BookOpen size={13} />
-                <span>View Cost Methodology</span>
+                <BookOpen size={12} />
+                <span>Methodology</span>
               </button>
             )}
           </div>
@@ -453,16 +352,17 @@ export default function WhyNoEstimateModal({
                   onClose();
                   onSelectProcedure();
                 }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px' }}
               >
-                <Stethoscope size={13} />
-                <span>{isProcedureMissing ? 'Select a Procedure →' : 'Choose Another Procedure'}</span>
+                <Stethoscope size={12} />
+                <span>{isProcedureMissing ? 'Select Procedure →' : 'Change Procedure'}</span>
               </button>
             )}
             <button
               type="button"
               className="pill-btn pill-btn-ghost pill-btn-sm"
               onClick={onClose}
+              style={{ fontSize: '11.5px' }}
             >
               Close
             </button>

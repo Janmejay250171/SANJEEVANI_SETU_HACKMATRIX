@@ -14,7 +14,10 @@ import {
   Sparkles,
   ShieldCheck,
   ShieldAlert,
-  MessageSquare
+  MessageSquare,
+  ChevronDown,
+  ChevronUp,
+  FileText
 } from 'lucide-react';
 import { TIER_1_REQUIRED_FIELDS } from '../types/policy';
 import { updatePolicy } from '../services/api';
@@ -32,6 +35,7 @@ export default function CoverageSummaryPage({
   const [saveError, setSaveError] = useState(null);
   const [activeSnippet, setActiveSnippet] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showDetailedClauses, setShowDetailedClauses] = useState(false);
 
   const FIELD_LABELS = {
     insurer: t('summary.fields.insurer', 'Insurer Name'),
@@ -285,8 +289,148 @@ export default function CoverageSummaryPage({
         )}
       </section>
 
-      {/* 4 Cards Grid */}
-      <div className="coverage-cards-grid">
+      {/* Essential Coverage Facts At A Glance (Initial scannable view) */}
+      <div className="coverage-key-facts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
+        <div className="feature-card" style={{ padding: '16px 18px', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Sum Insured
+          </span>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-text)' }}>
+            {policy.policyType === 'esi'
+              ? 'Unlimited (ESI Statutory)'
+              : policy.sumInsured
+                ? `₹${Number(policy.sumInsured).toLocaleString('en-IN')}`
+                : t('common.unknown')}
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+            {getFieldProvenance('sumInsured', policy.sumInsured).label}
+          </span>
+        </div>
+
+        <div className="feature-card" style={{ padding: '16px 18px', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Room Rent Limit
+          </span>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text)' }}>
+            {getRoomLimitText()}
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+            {getFieldProvenance('roomLimit', policy.roomLimit).label}
+          </span>
+        </div>
+
+        <div className="feature-card" style={{ padding: '16px 18px', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            ICU Limit
+          </span>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text)' }}>
+            {getIcuLimitText()}
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+            {getFieldProvenance('icuLimit', policy.icuLimit).label}
+          </span>
+        </div>
+
+        <div className="feature-card" style={{ padding: '16px 18px', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Base Co-Pay
+          </span>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text)' }}>
+            {policy.copay !== null && policy.copay !== undefined ? `${policy.copay}%` : 'Not specified'}
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+            Non-network: {policy.nonNetworkCopay !== null && policy.nonNetworkCopay !== undefined ? `${policy.nonNetworkCopay}%` : 'Not specified'}
+          </span>
+        </div>
+
+        <div className="feature-card" style={{ padding: '16px 18px', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Deductible
+          </span>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-text)' }}>
+            {typeof policy.deductible === 'number' && policy.deductible !== null && policy.sourceStatuses?.deductible !== 'not_detected'
+              ? `₹${Number(policy.deductible).toLocaleString('en-IN')}`
+              : '₹0 (Nil)'}
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+            {policy.cashlessAvailable ? 'Cashless available at network' : 'Reimbursement only'}
+          </span>
+        </div>
+      </div>
+
+      {/* Proportionate Deduction Status & Action (Part 4) */}
+      <div
+        style={{
+          borderRadius: 'var(--radius-sm)',
+          padding: '14px 18px',
+          background: policy.proportionateDeduction ? '#fef2f2' : '#f0fdf4',
+          border: policy.proportionateDeduction ? '1.5px solid #fecaca' : '1.5px solid #bbf7d0',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {policy.proportionateDeduction ? (
+            <ShieldAlert size={20} style={{ color: '#dc2626', flexShrink: 0 }} />
+          ) : (
+            <ShieldCheck size={20} style={{ color: '#16a34a', flexShrink: 0 }} />
+          )}
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: policy.proportionateDeduction ? '#991b1b' : '#14532d' }}>
+              Proportionate Deduction: {policy.proportionateDeduction ? 'Applicable' : 'Not Applicable'}
+            </div>
+            <div style={{ fontSize: '12.5px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+              {policy.proportionateDeduction
+                ? 'Higher room categories will reduce payable surgeon and procedural charges proportionately.'
+                : 'No proportionate reduction applies to associated medical charges if room rent limit is exceeded.'}
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="pill-btn pill-btn-sm"
+          style={{
+            padding: '5px 12px',
+            fontSize: '12px',
+            background: '#ffffff',
+            color: policy.proportionateDeduction ? '#dc2626' : '#16a34a',
+            border: policy.proportionateDeduction ? '1.5px solid #fca5a5' : '1.5px solid #86efac',
+            fontWeight: 700
+          }}
+          onClick={async () => {
+            try {
+              const updated = await updatePolicy(policy._id, { proportionateDeduction: !policy.proportionateDeduction });
+              onPolicyConfirmed(updated);
+            } catch (e) {
+              console.error('Failed to toggle proportionate deduction:', e);
+            }
+          }}
+        >
+          {policy.proportionateDeduction ? 'Change to Not Applicable' : 'Change to Applicable'}
+        </button>
+      </div>
+
+      {/* Progressive Disclosure Toggle for Detailed Clauses */}
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
+        <button
+          type="button"
+          onClick={() => setShowDetailedClauses(!showDetailedClauses)}
+          className="pill-btn pill-btn-ghost"
+          style={{ fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          <FileText size={15} />
+          <span>{showDetailedClauses ? 'Hide Detailed Clauses & Policy Evidence' : 'View Full Clauses, Waiting Periods & Policyholders'}</span>
+          {showDetailedClauses ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+        </button>
+      </div>
+
+      {/* 4 Cards Grid (Behind Progressive Disclosure) */}
+      {showDetailedClauses && (
+        <div className="coverage-cards-grid animate-fade-in">
         {/* CARD 1: Key Financial Limits */}
         <div className="feature-card" style={{ gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -883,6 +1027,7 @@ export default function CoverageSummaryPage({
           </div>
         </div>
       </div>
+    )}
 
       {/* Snippet modal */}
       {activeSnippet && (

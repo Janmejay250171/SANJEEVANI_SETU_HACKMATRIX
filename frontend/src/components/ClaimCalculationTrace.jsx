@@ -44,18 +44,17 @@ export default function ClaimCalculationTrace({ ledger, traceId }) {
         <div className="trace-header-left">
           <Layers size={18} className="text-primary" />
           <div>
-            <h3 className="trace-title">Deterministic Calculation Waterfall & Audit Trace</h3>
+            <h3 className="trace-title">Calculation Steps & Audit Trace</h3>
             <span className="trace-subtitle">
-              Auditable integer minor unit precision • Zero floating-point rounding errors
+              Step-by-step breakdown of deductions, limits, and final payout
             </span>
           </div>
         </div>
 
         <div className="trace-header-right">
-          {traceId && <span className="trace-id-badge font-mono">Trace: {traceId}</span>}
           <span className={`balance-badge ${isMathematicallyBalanced ? 'badge-success' : 'badge-danger'}`}>
             <Scale size={13} />
-            {isMathematicallyBalanced ? 'Conservation Verified' : 'Imbalance Detected'}
+            {isMathematicallyBalanced ? 'Balanced' : 'Check Math'}
           </span>
           <button
             type="button"

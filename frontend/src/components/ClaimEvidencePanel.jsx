@@ -55,7 +55,7 @@ export default function ClaimEvidencePanel({
       <div className="evidence-panel-header">
         <div className="panel-title-group">
           <BookOpen size={18} className="text-primary" />
-          <h3 className="panel-title">Clause Evidence & Uncertainty Audit</h3>
+          <h3 className="panel-title">Policy Clauses & Evidence</h3>
         </div>
         <div className="panel-version-indicator">
           <span className="version-tag font-mono">

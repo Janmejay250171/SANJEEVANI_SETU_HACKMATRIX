@@ -14,13 +14,66 @@ export function isSpeechSynthesisSupported() {
 }
 
 /**
- * Creates and manages an active SpeechRecognition session
+ * Healthcare and Indian insurance domain phonetic STT correction
+ * Corrects typical speech recognition slips, mishearings, and word merges
+ */
+const STT_REPLACEMENTS = [
+  // Brand name
+  [/\b(?:see\s*hat\s*sure|sehat\s*shore|sehat\s*shure|sehat\s*sur|say\s*hath\s*sure|sehat\s*sir)\b/gi, 'SehatSure'],
+
+  // Core Insurance & Healthcare Terminology
+  [/\b(?:some\s*insured|sum\s*ensure|sum\s*insurer|some\s*insurer)\b/gi, 'sum insured'],
+  [/\b(?:cope\s*pay|co\s*paying|cope\s*payment|co\s+pay)\b/gi, 'copay'],
+  [/\b(?:room\s*rate|room\s*rent\s*rates)\b/gi, 'room rent'],
+  [/\b(?:tea\s*pee\s*a|t\s*p\s*a|t\.p\.a\.)\b/gi, 'TPA'],
+  [/\b(?:i\s*c\s*u|i\.c\.u\.)\b/gi, 'ICU'],
+  [/\b(?:p\s*m\s*j\s*a\s*y|p\s*m\s*jay|pm\s*jay|pmjay)\b/gi, 'PM-JAY'],
+  [/\b(?:e\s*s\s*i|e\.s\.i\.)\b/gi, 'ESI'],
+  [/\b(?:e\s*s\s*i\s*c|e\.s\.i\.c\.)\b/gi, 'ESIC'],
+  [/\b(?:ayushman\s*bhart|ayush\s*man\s*bharat)\b/gi, 'Ayushman Bharat'],
+  [/\b(?:cash\s*less)\b/gi, 'cashless'],
+  [/\b(?:non\s*network)\b/gi, 'non-network'],
+  [/\b(?:out\s*of\s*packet)\b/gi, 'out-of-pocket'],
+  [/\b(?:pre\s*auth|pre\s*authorization)\b/gi, 'pre-authorization'],
+  [/\b(?:cat\s*rack|cat\s*racks)\b/gi, 'cataract'],
+  [/\b(?:medi\s*claim)\b/gi, 'mediclaim'],
+  [/\b(?:in\s*panelled|impanelled|in\s*panel)\b/gi, 'empanelled'],
+  [/\b(?:day\s*care)\b/gi, 'daycare'],
+  [/\b(?:laproscopy|laproscopic)\b/gi, 'laparoscopic'],
+  [/\b(?:pre\s*existing)\b/gi, 'pre-existing'],
+  [/\b(?:sub\s*limit|sub\s*limits)\b/gi, 'sublimit'],
+  [/\b(?:de\s*ductable|deductables)\b/gi, 'deductible'],
+  [/\b(?:rhinoplasti|rino\s*plasty)\b/gi, 'rhinoplasty'],
+  [/\b(?:bio\s*resonance)\b/gi, 'bioresonance']
+];
+
+export function cleanAndCorrectSpeechText(text) {
+  if (!text) return '';
+  let cleaned = text;
+
+  // Apply healthcare phonetic fixes
+  for (const [pattern, replacement] of STT_REPLACEMENTS) {
+    cleaned = cleaned.replace(pattern, replacement);
+  }
+
+  // Clean redundant spaces and punctuation glitches
+  cleaned = cleaned
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([.,?!])/g, '$1')
+    .trim();
+
+  return cleaned;
+}
+
+/**
+ * Creates and manages an active SpeechRecognition session with high-accuracy
+ * continuous listening, space preservation, and domain terminology awareness.
  */
 export class SpeechRecognizer {
   constructor(options = {}) {
     this.options = {
       language: options.language || 'en-IN',
-      continuous: options.continuous ?? false,
+      continuous: options.continuous ?? true,
       interimResults: options.interimResults ?? true,
       onTranscript: options.onTranscript || (() => {}),
       onStart: options.onStart || (() => {}),
@@ -30,7 +83,9 @@ export class SpeechRecognizer {
 
     this.recognition = null;
     this.isListening = false;
+    this.shouldStayListening = false;
     this.finalTranscript = '';
+    this.interimTranscript = '';
   }
 
   start() {
@@ -52,7 +107,10 @@ export class SpeechRecognizer {
       this.recognition.lang = this.options.language;
       this.recognition.continuous = this.options.continuous;
       this.recognition.interimResults = this.options.interimResults;
+      this.recognition.maxAlternatives = 3;
       this.finalTranscript = '';
+      this.interimTranscript = '';
+      this.shouldStayListening = true;
 
       this.recognition.onstart = () => {
         this.isListening = true;
@@ -60,16 +118,38 @@ export class SpeechRecognizer {
       };
 
       this.recognition.onresult = (event) => {
-        let interim = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          const item = event.results[i];
-          if (item.isFinal) {
-            this.finalTranscript += item[0].transcript;
+        let finalStr = '';
+        let interimStr = '';
+
+        for (let i = 0; i < event.results.length; ++i) {
+          const res = event.results[i];
+          if (!res || !res[0]) continue;
+
+          // Inspect alternatives: pick one with healthcare terminology if present
+          let bestText = res[0].transcript || '';
+          if (res.length > 1) {
+            const healthcareRegex = /policy|claim|hospital|cashless|copay|co-pay|deductible|room rent|sum insured|tpa|icu|ayushman|pmjay|esi|cataract|surgery|coverage|pre-auth|mediclaim|sehatsure|laparoscopic|appendectomy|rhinoplasty/i;
+            for (let a = 0; a < res.length; a++) {
+              if (res[a] && healthcareRegex.test(res[a].transcript)) {
+                bestText = res[a].transcript;
+                break;
+              }
+            }
+          }
+
+          if (res.isFinal) {
+            finalStr = (finalStr ? finalStr + ' ' : '') + bestText.trim();
           } else {
-            interim += item[0].transcript;
+            interimStr = (interimStr ? interimStr + ' ' : '') + bestText.trim();
           }
         }
-        const full = (this.finalTranscript + ' ' + interim).trim();
+
+        this.finalTranscript = cleanAndCorrectSpeechText(finalStr);
+        this.interimTranscript = cleanAndCorrectSpeechText(interimStr);
+
+        const fullRaw = (this.finalTranscript ? this.finalTranscript + (this.interimTranscript ? ' ' + this.interimTranscript : '') : this.interimTranscript).trim();
+        const full = cleanAndCorrectSpeechText(fullRaw);
+
         this.options.onTranscript(full, Boolean(this.finalTranscript));
       };
 
@@ -81,15 +161,22 @@ export class SpeechRecognizer {
           case 'not-allowed':
           case 'service-not-allowed':
             message = 'Microphone permission was denied. Please allow microphone access in your browser settings.';
+            this.shouldStayListening = false;
             break;
           case 'no-speech':
-            message = 'No speech was detected. Please click the microphone and try speaking again.';
+            // In continuous mode, no-speech is a temporary silence pause; do not interrupt user
+            if (this.shouldStayListening) {
+              return;
+            }
+            message = 'No speech detected. Please speak into your microphone.';
             break;
           case 'audio-capture':
             message = 'No microphone could be found or capture failed. Please check your audio input device.';
+            this.shouldStayListening = false;
             break;
           case 'network':
             message = 'Network connection issue during speech recognition. You can still type your question.';
+            this.shouldStayListening = false;
             break;
           case 'aborted':
             // Harmless user cancellation
@@ -102,6 +189,13 @@ export class SpeechRecognizer {
       };
 
       this.recognition.onend = () => {
+        // If user is still supposed to be speaking in continuous mode, reconnect smoothly
+        if (this.shouldStayListening && this.options.continuous) {
+          try {
+            this.recognition.start();
+            return;
+          } catch {}
+        }
         this.isListening = false;
         this.options.onEnd();
       };
@@ -110,6 +204,7 @@ export class SpeechRecognizer {
       return true;
     } catch (err) {
       this.isListening = false;
+      this.shouldStayListening = false;
       this.options.onError({
         code: 'INITIALIZATION_FAILED',
         message: err.message || 'Could not start microphone session.'
@@ -119,6 +214,7 @@ export class SpeechRecognizer {
   }
 
   stop() {
+    this.shouldStayListening = false;
     if (this.recognition && this.isListening) {
       try {
         this.recognition.stop();
@@ -128,6 +224,7 @@ export class SpeechRecognizer {
   }
 
   abort() {
+    this.shouldStayListening = false;
     if (this.recognition) {
       try {
         this.recognition.abort();

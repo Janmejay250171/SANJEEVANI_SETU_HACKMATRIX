@@ -13,6 +13,7 @@
     "dev:server": "npm --prefix server run dev",
     "dev:client": "npm --prefix frontend run dev",
     "build": "npm --prefix server run build && npm --prefix frontend run build",
+    "build:render": "npm run build",
     "start": "node --max-old-space-size=450 server/dist/index.js",
     "test": "npm --prefix server run test"
   },

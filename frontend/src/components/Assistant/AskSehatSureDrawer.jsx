@@ -58,7 +58,7 @@ export default function AskSehatSureDrawer({
   useEffect(() => {
     recognizerRef.current = new SpeechRecognizer({
       language: language === 'hi' ? 'hi-IN' : 'en-IN',
-      continuous: false,
+      continuous: true,
       interimResults: true,
       onStart: () => {
         setIsListening(true);
@@ -151,8 +151,7 @@ export default function AskSehatSureDrawer({
       return [
         'What is my room rent and ICU limit?',
         'Does my policy have a proportionate deduction clause?',
-        'What is my co-payment for non-network hospitals?',
-        'Are pre-existing conditions covered?'
+        'What is my co-payment for non-network hospitals?'
       ];
     }
     return [
@@ -322,9 +321,11 @@ export default function AskSehatSureDrawer({
     setSpeechError(null);
   };
 
-  const suggestions = messages.length > 0 && messages[messages.length - 1].suggestedQuestions?.length > 0
-    ? messages[messages.length - 1].suggestedQuestions
-    : getContextSuggestions();
+  const suggestions = (
+    messages.length > 0 && messages[messages.length - 1].suggestedQuestions?.length > 0
+      ? messages[messages.length - 1].suggestedQuestions
+      : getContextSuggestions()
+  ).slice(0, 3);
 
   if (!isOpen) return null;
 
@@ -337,13 +338,32 @@ export default function AskSehatSureDrawer({
         {/* Header */}
         <div className="ask-drawer-header">
           <div className="ask-header-brand">
-            <div className="ask-brand-avatar">
-              <Sparkles size={18} className="sparkle-icon" />
+            <div className={`ask-brand-avatar ${isSpeaking ? 'speaking' : isListening ? 'listening' : isLoading ? 'thinking' : 'idle'}`}>
+              <span className="ask-orb-halo" aria-hidden="true" />
+              <Sparkles size={16} className="sparkle-icon" />
               <Bot size={20} />
             </div>
             <div className="ask-brand-text">
               <h3 className="ask-title">Ask SehatSure</h3>
-              <span className="ask-badge">Voice & Insurance AI</span>
+              <div className="ask-ai-status-tag">
+                {isSpeaking ? (
+                  <span className="status-badge speaking">
+                    <span className="pulse-indicator-dot" /> Speaking
+                  </span>
+                ) : isListening ? (
+                  <span className="status-badge listening">
+                    <span className="pulse-indicator-dot" /> Listening...
+                  </span>
+                ) : isLoading ? (
+                  <span className="status-badge thinking">
+                    <span className="pulse-indicator-dot" /> Thinking...
+                  </span>
+                ) : (
+                  <span className="status-badge idle">
+                    <span className="idle-indicator-dot" /> Online
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

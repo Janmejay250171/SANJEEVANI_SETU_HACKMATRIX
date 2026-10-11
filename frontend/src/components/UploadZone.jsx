@@ -94,9 +94,9 @@ export default function UploadZone({ onFileSelected, disabled, isLoggedIn = true
         <div className="upload-emblem">
           <UploadCloud size={30} strokeWidth={1.8} />
         </div>
-        <h2 className="upload-card-title">{t('upload.dropzoneTitle')}</h2>
+        <h2 className="upload-card-title">{t('upload.dropzoneTitle', 'Upload your health policy')}</h2>
         <p className="upload-card-sub">
-          {t('upload.dropzoneHint')}
+          {t('upload.dropzoneHint', 'PDF format up to 15 MB')}
         </p>
 
         <button

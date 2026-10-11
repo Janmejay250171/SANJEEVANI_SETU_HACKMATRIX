@@ -2087,30 +2087,31 @@ export default function HospitalDiscoveryPage({
             {isLoadingGuidance ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', color: '#475569', fontSize: '13px' }}>
                 <span className="spinner" style={{ width: '16px', height: '16px', borderWidth: '2px' }} />
-                <span>Analyzing policy cashless admission criteria and clinical readiness for {selectedProcedure || selectedSpecialty || 'your treatment'}...</span>
+                <span>Analyzing network status and clinical readiness...</span>
               </div>
             ) : nearestGuidance ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', lineHeight: 1.55 }}>
-                <div style={{ color: '#1e293b', fontWeight: 600 }}>
-                  💡 {nearestGuidance.summary}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', fontSize: '12.5px', lineHeight: 1.4 }}>
+                <div style={{ background: '#ffffff', padding: '8px 12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Recommendation</div>
+                  <div style={{ color: '#0f172a', fontWeight: 600, marginTop: '2px' }}>{nearestGuidance.summary}</div>
                 </div>
                 {nearestGuidance.recommendation && (
-                  <div
-                    style={{
-                      color: isSpecialtyMode ? '#5b21b6' : '#047857',
-                      background: isSpecialtyMode ? '#f5f3ff' : '#ecfdf5',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      border: isSpecialtyMode ? '1px solid #ddd6fe' : '1px solid #a7f3d0'
-                    }}
-                  >
-                    <strong>Next Steps:</strong> {nearestGuidance.recommendation}
+                  <div style={{ background: isSpecialtyMode ? '#f5f3ff' : '#ecfdf5', padding: '8px 12px', borderRadius: '6px', border: isSpecialtyMode ? '1px solid #ddd6fe' : '1px solid #a7f3d0' }}>
+                    <div style={{ fontSize: '10px', color: isSpecialtyMode ? '#6d28d9' : '#047857', fontWeight: 700, textTransform: 'uppercase' }}>Next Action</div>
+                    <div style={{ color: isSpecialtyMode ? '#5b21b6' : '#047857', fontWeight: 600, marginTop: '2px' }}>{nearestGuidance.recommendation}</div>
                   </div>
                 )}
               </div>
             ) : (
-              <div style={{ fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
-                All 3 facilities below are verified within your policy's approved cashless network for {selectedProcedure || selectedSpecialty || 'this procedure'}. Present your e-Card at their TPA insurance desk for seamless cashless admission with zero non-network co-pay deductions.
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', fontSize: '12.5px', lineHeight: 1.4 }}>
+                <div style={{ background: '#ffffff', padding: '8px 12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Recommendation</div>
+                  <div style={{ color: '#0f172a', fontWeight: 600, marginTop: '2px' }}>Top facilities matched for {selectedProcedure || selectedSpecialty || 'your selection'}.</div>
+                </div>
+                <div style={{ background: '#ecfdf5', padding: '8px 12px', borderRadius: '6px', border: '1px solid #a7f3d0' }}>
+                  <div style={{ fontSize: '10px', color: '#047857', fontWeight: 700, textTransform: 'uppercase' }}>Next Action</div>
+                  <div style={{ color: '#047857', fontWeight: 600, marginTop: '2px' }}>Confirm cashless pre-authorization with the hospital TPA desk.</div>
+                </div>
               </div>
             )}
           </div>
@@ -2460,6 +2461,33 @@ export default function HospitalDiscoveryPage({
                           <Stethoscope size={12} />
                           <span>Select Procedure</span>
                         </button>
+                      ) : Boolean(ci?.mlCostAnalysis && ci.mlCostAnalysis.status === 'available' && ci.mlCostAnalysis.mlEstimate) ? (
+                        <button
+                          type="button"
+                          className="pill-btn pill-btn-primary pill-btn-sm"
+                          style={{
+                            flex: 1,
+                            padding: '7px 10px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            background: '#0f766e',
+                            color: '#ffffff',
+                            border: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '5px'
+                          }}
+                          onClick={() => setSelectedWhyNoEstimateModal({
+                            hospital: h,
+                            specialty: selectedSpecialty,
+                            procedure: selectedProcedure || ci?.procedure || 'This procedure',
+                            costIntelligence: ci
+                          })}
+                        >
+                          <Cpu size={12} />
+                          <span>Cost Drivers</span>
+                        </button>
                       ) : (
                         <button
                           type="button"
@@ -2480,7 +2508,8 @@ export default function HospitalDiscoveryPage({
                           onClick={() => setSelectedWhyNoEstimateModal({
                             hospital: h,
                             specialty: selectedSpecialty,
-                            procedure: selectedProcedure || ci?.procedure || 'This procedure'
+                            procedure: selectedProcedure || ci?.procedure || 'This procedure',
+                            costIntelligence: ci
                           })}
                         >
                           <HelpCircle size={13} style={{ color: '#d97706' }} />
@@ -2568,46 +2597,73 @@ export default function HospitalDiscoveryPage({
                   </div>
 
                   {/* Middle: SehatSure Score (centered in this line) */}
-                  <div className="hospital-card-header-middle">
-                    {score && (score.granularScore !== undefined || score.finalScore !== undefined) && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedScoreForModal({
-                            hospital: h,
-                            score,
-                            estimate: est,
-                            networkInfo: netInfo
-                          });
-                        }}
-                        className="pill-label pill-label-interactive"
-                        style={{
-                          fontSize: '11.5px',
-                          padding: '3.5px 11px',
-                          fontWeight: 800,
-                          background: 'var(--color-teal-light, #F0FDFA)',
-                          color: 'var(--color-primary, #0F766E)',
-                          border: '1.5px solid var(--color-teal-border, #CCFBF1)',
-                          borderRadius: 'var(--radius-pill)',
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          whiteSpace: 'nowrap',
-                          transition: 'all 0.15s ease',
-                          boxShadow: '0 1px 3px rgba(15,118,110,0.08)'
-                        }}
-                        title={t('discovery.hospitalCard.fitScoreExplanation')}
-                      >
-                        <span>
-                          {t('discovery.hospitalCard.fitScoreLabel', {
-                            score: Number(score.granularScore ?? score.finalScore).toFixed(1)
-                          }, `SehatSure Score : ${Number(score.granularScore ?? score.finalScore).toFixed(1)}`)}
-                        </span>
-                      </button>
-                    )}
-                  </div>
+                    {score && (score.granularScore !== undefined || score.finalScore !== undefined) && (() => {
+                      const scoreVal = Number(score.granularScore ?? score.finalScore ?? 0);
+                      const ringR = 6;
+                      const ringCirc = 2 * Math.PI * ringR;
+                      const ringOffset = ringCirc - (scoreVal / 100) * ringCirc;
+                      const ringStroke = scoreVal >= 78 ? '#059669' : scoreVal >= 60 ? '#D97706' : '#DC2626';
+
+                      return (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedScoreForModal({
+                              hospital: h,
+                              score,
+                              estimate: est,
+                              networkInfo: netInfo
+                            });
+                          }}
+                          className="pill-label pill-label-interactive hospital-score-pill"
+                          style={{
+                            fontSize: '11.5px',
+                            padding: '3px 11px',
+                            fontWeight: 800,
+                            background: 'var(--color-teal-light, #F0FDFA)',
+                            color: 'var(--color-primary, #0B746E)',
+                            border: '1.5px solid var(--color-teal-border, #CCFBF1)',
+                            borderRadius: 'var(--radius-pill)',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            whiteSpace: 'nowrap',
+                            transition: 'all 0.18s ease',
+                            boxShadow: '0 1px 3px rgba(11,116,110,0.08)'
+                          }}
+                          title={t('discovery.hospitalCard.fitScoreExplanation')}
+                        >
+                          <svg
+                            width="15"
+                            height="15"
+                            viewBox="0 0 16 16"
+                            style={{ flexShrink: 0, transform: 'rotate(-90deg)' }}
+                            aria-hidden="true"
+                          >
+                            <circle cx="8" cy="8" r={ringR} fill="none" stroke="#CCFBF1" strokeWidth="2.2" />
+                            <circle
+                              cx="8"
+                              cy="8"
+                              r={ringR}
+                              fill="none"
+                              stroke={ringStroke}
+                              strokeWidth="2.2"
+                              strokeDasharray={ringCirc}
+                              strokeDashoffset={ringOffset}
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <span>
+                            {t('discovery.hospitalCard.fitScoreLabel', {
+                              score: scoreVal.toFixed(1)
+                            }, `SehatSure Score: ${scoreVal.toFixed(1)}`)}
+                          </span>
+                        </button>
+                      );
+                    })()}
+
 
                   {/* Right: Save Option */}
                   <div className="hospital-card-header-right">
@@ -2757,46 +2813,45 @@ export default function HospitalDiscoveryPage({
                 {/* Specialties preview */}
                 {h.specialties && h.specialties.length > 0 && (
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    {h.specialties.slice(0, 3).map((sp) => (
-                      <span key={sp} className="asset-chip" style={{ fontSize: '11.5px', padding: '4px 10px', fontWeight: 600, color: '#0f172a', background: '#f1f5f9', border: '1px solid #cbd5e1' }}>
+                    {h.specialties.slice(0, 2).map((sp) => (
+                      <span key={sp} className="asset-chip" style={{ fontSize: '11.5px', padding: '3px 8px', fontWeight: 600, color: '#0f172a', background: '#f1f5f9', border: '1px solid #cbd5e1' }}>
                         {sp}
                       </span>
                     ))}
-                    {h.specialties.length > 3 && (
-                      <span className="asset-chip" style={{ fontSize: '11.5px', padding: '4px 10px', fontWeight: 600, color: '#334155', background: '#f8fafc', border: '1px solid #cbd5e1' }}>
-                        +{h.specialties.length - 3} {t('common.more', 'more')}
+                    {h.specialties.length > 2 && (
+                      <span className="asset-chip" style={{ fontSize: '11px', padding: '3px 8px', fontWeight: 600, color: '#475569', background: '#f8fafc', border: '1px solid #cbd5e1' }}>
+                        +{h.specialties.length - 2} {t('common.more', 'more')}
                       </span>
                     )}
                   </div>
                 )}
 
                 {/* Accepted Insurers & Authoritative Network Status */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     {isVerified ? (
-                      <ShieldCheck size={15} style={{ color: '#16a34a' }} />
+                      <ShieldCheck size={14} style={{ color: '#16a34a' }} />
                     ) : isNoMatch ? (
-                      <ShieldAlert size={15} style={{ color: '#dc2626' }} />
+                      <ShieldAlert size={14} style={{ color: '#dc2626' }} />
                     ) : isUnverified ? (
-                      <AlertTriangle size={15} style={{ color: '#d97706' }} />
+                      <AlertTriangle size={14} style={{ color: '#d97706' }} />
                     ) : (
-                      <HelpCircle size={15} style={{ color: '#64748b' }} />
+                      <HelpCircle size={14} style={{ color: '#64748b' }} />
                     )}
                     <span>{t('discovery.hospitalCard.acceptedInsurers')}</span>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
                     {(() => {
                       const allInsurers = (h.insurers && h.insurers.length > 0) ? h.insurers : [];
                       if (allInsurers.length === 0) {
                         return (
-                          <span style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>
+                          <span style={{ fontSize: '11.5px', color: '#64748b', fontStyle: 'italic' }}>
                             {t('discovery.hospitalCard.noInsurerData')}
                           </span>
                         );
                       }
 
-                      // Helper to check if this hospital insurer matches the user's policy
                       const isInsurerMatching = (insName) => {
                         if (!isVerified) return false;
                         const i = insName.toLowerCase().trim();
@@ -2811,7 +2866,6 @@ export default function HospitalDiscoveryPage({
                         return false;
                       };
 
-                      // Sort so the matched policy insurer (e.g. HDFC, Star Health) appears first, and all other accepted insurers remain clearly visible
                       const sorted = [...allInsurers].sort((a, b) => {
                         const aMatch = isInsurerMatching(a);
                         const bMatch = isInsurerMatching(b);
@@ -2820,29 +2874,41 @@ export default function HospitalDiscoveryPage({
                         return a.localeCompare(b);
                       });
 
-                      return sorted.map((ins) => {
-                        const isThisInsurerMatched = isInsurerMatching(ins);
-                        return (
-                          <span
-                            key={ins}
-                            style={{
-                              fontSize: '13px',
-                              padding: '5px 12px',
-                              borderRadius: 'var(--radius-pill)',
-                              border: isThisInsurerMatched ? '1.5px solid #86efac' : '1.5px solid #cbd5e1',
-                              background: isThisInsurerMatched ? '#f0fdf4' : '#f8fafc',
-                              color: isThisInsurerMatched ? '#14532d' : '#0f172a',
-                              fontWeight: isThisInsurerMatched ? 800 : 700,
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '5px'
-                            }}
-                          >
-                            {isThisInsurerMatched && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }} />}
-                            {ins}
-                          </span>
-                        );
-                      });
+                      const visibleInsurers = sorted.slice(0, 2);
+                      const remainingCount = sorted.length - 2;
+
+                      return (
+                        <>
+                          {visibleInsurers.map((ins) => {
+                            const isThisInsurerMatched = isInsurerMatching(ins);
+                            return (
+                              <span
+                                key={ins}
+                                style={{
+                                  fontSize: '11.5px',
+                                  padding: '3px 9px',
+                                  borderRadius: 'var(--radius-pill)',
+                                  border: isThisInsurerMatched ? '1.5px solid #86efac' : '1px solid #cbd5e1',
+                                  background: isThisInsurerMatched ? '#f0fdf4' : '#f8fafc',
+                                  color: isThisInsurerMatched ? '#14532d' : '#0f172a',
+                                  fontWeight: isThisInsurerMatched ? 800 : 600,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                              >
+                                {isThisInsurerMatched && <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#16a34a' }} />}
+                                {ins}
+                              </span>
+                            );
+                          })}
+                          {remainingCount > 0 && (
+                            <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, padding: '2px 6px' }}>
+                              +{remainingCount} more
+                            </span>
+                          )}
+                        </>
+                      );
                     })()}
                   </div>
                 </div>
@@ -2868,72 +2934,28 @@ export default function HospitalDiscoveryPage({
                           background: '#fffbeb',
                           border: '1.5px solid #fde68a',
                           borderRadius: 'var(--radius-sm)',
-                          padding: '14px 16px',
+                          padding: '12px 14px',
                           marginTop: 'auto',
                           display: 'flex',
                           flexDirection: 'column',
-                          gap: '10px'
+                          gap: '8px'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9a3412', fontWeight: 800, fontSize: '13px' }}>
-                          <AlertTriangle size={16} style={{ color: '#ea580c', flexShrink: 0 }} />
-                          <span>NO RELIABLE COST BENCHMARK</span>
-                        </div>
-
-                        <div style={{ fontSize: '12.5px', color: '#334155', lineHeight: 1.45, fontWeight: 500 }}>
-                          {selectedSpecialty
-                            ? `Hospital matching is active for ${selectedSpecialty}, but verified cost evidence requires procedure selection.`
-                            : 'Hospital matching is available, but verified cost evidence requires procedure selection.'}
-                        </div>
-
-                        <div
-                          style={{
-                            background: '#f8fafc',
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '6px',
-                            padding: '8px 10px',
-                            fontSize: '11.5px',
-                            color: '#475569',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '5px'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: '#2563eb', fontWeight: 700 }}>•</span>
-                            <span>
-                              <strong>{specialtyMatchedCount}</strong> hospitals match the selected specialty.
-                            </span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: '#64748b', fontWeight: 700 }}>•</span>
-                            <span>
-                              <strong>0</strong> hospitals have verified procedure-level evidence without a procedure selection.
-                            </span>
-                          </div>
-                        </div>
-
-                        <div
-                          style={{
-                            fontSize: '11.5px',
-                            color: '#0369a1',
-                            background: '#f0f9ff',
-                            border: '1px solid #bae6fd',
-                            borderRadius: '4px',
-                            padding: '6px 8px',
-                            fontWeight: 600,
-                            display: 'flex',
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            background: '#fef3c7',
+                            color: '#92400e',
+                            border: '1px solid #fde68a',
+                            display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '6px'
-                          }}
-                        >
-                          <span>🛡️</span>
-                          <span>SehatSure will not substitute another procedure's cost.</span>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b', borderTop: '1px dashed #cbd5e1', paddingTop: '6px' }}>
-                          <span>
-                            Network Status: <strong>{isVerified ? 'Dataset-Based Network Match' : isNoMatch ? 'Non-Network Facility' : 'Status Unverified'}</strong>
+                            gap: '4px'
+                          }}>
+                            <AlertTriangle size={12} />
+                            Procedure selection required
                           </span>
                           <button
                             type="button"
@@ -2951,12 +2973,21 @@ export default function HospitalDiscoveryPage({
                               padding: 0,
                               color: '#0284c7',
                               cursor: 'pointer',
+                              fontSize: '11px',
                               fontWeight: 600,
                               textDecoration: 'underline'
                             }}
                           >
-                            Why no estimate?
+                            Why?
                           </button>
+                        </div>
+
+                        <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.4 }}>
+                          Select a procedure above to calculate verified treatment estimates.
+                        </div>
+
+                        <div style={{ fontSize: '11px', color: '#64748b', borderTop: '1px dashed #e2e8f0', paddingTop: '6px' }}>
+                          Network: <strong>{isVerified ? 'Dataset Network Match' : isNoMatch ? 'Non-Network Facility' : 'Status Unverified'}</strong>
                         </div>
                       </div>
                     );
@@ -2981,15 +3012,14 @@ export default function HospitalDiscoveryPage({
                             background: '#f8fafc',
                             border: '1.5px solid #0f766e',
                             borderRadius: 'var(--radius-sm)',
-                            padding: '14px 16px',
+                            padding: '12px 14px',
                             marginTop: 'auto',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '10px'
+                            gap: '8px'
                           }}
                         >
-                          {/* Top Badges */}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
                             <span style={{
                               fontSize: '11px',
                               fontWeight: 700,
@@ -2999,7 +3029,7 @@ export default function HospitalDiscoveryPage({
                               color: '#92400e',
                               border: '1px solid #fde68a'
                             }}>
-                              NO VERIFIED BENCHMARK
+                              No verified benchmark
                             </span>
                             <span style={{
                               fontSize: '11px',
@@ -3013,76 +3043,18 @@ export default function HospitalDiscoveryPage({
                               alignItems: 'center',
                               gap: '4px'
                             }}>
-                              <Cpu size={12} />
-                              {ml.reliability === 'high' ? 'High Model Support' : ml.reliability === 'moderate' ? 'Moderate Model Support' : 'Limited Model Support'}
+                              <Cpu size={11} />
+                              Model reference
                             </span>
                           </div>
 
-                          <div style={{ fontSize: '11.5px', color: '#64748b', lineHeight: 1.4 }}>
-                            Government/authoritative benchmark unavailable for {procName}. A model-based statistical estimate is available from structured treatment-cost data.
-                          </div>
-
-                          {/* Primary Metric: AI Statistical Cost Estimate / Model Cost Reference */}
-                          <div style={{
-                            background: '#ffffff',
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '6px',
-                            padding: '10px 12px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '8px'
-                          }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '2px' }}>
                             <div>
-                              <div style={{ fontSize: '10.5px', color: '#0f766e', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                                MODEL COST REFERENCE
-                              </div>
-                              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                                Estimated treatment cost for this scenario (~{tierName} / {cityName}):
-                              </div>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '11px', color: '#64748b' }}>Estimated treatment cost:</div>
                               <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f766e' }}>
                                 ~{ml.displayEstimate}
                               </div>
-                              <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600 }}>
-                                Model-based estimate from structured treatment-cost data
-                              </div>
                             </div>
-                          </div>
-
-                          {/* Compact Provenance & Key Drivers Summary */}
-                          <div style={{
-                            background: '#f1f5f9',
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '5px',
-                            padding: '8px 10px',
-                            fontSize: '11px',
-                            color: '#334155',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '4px'
-                          }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
-                              <span><strong>Model support:</strong> {supportCount} relevant records</span>
-                              <span><strong>Scenario:</strong> {tierName} · {procName}</span>
-                            </div>
-                            <div>
-                              <strong>Key drivers:</strong> {ml.costDrivers?.map(d => d.feature).join(' · ') || 'Geography · Specialty · Procedure · Expected stay'}
-                            </div>
-                          </div>
-
-                          {/* Clear Disclaimer & Insurance Boundary */}
-                          <div style={{ fontSize: '10.5px', color: '#64748b', lineHeight: 1.35, borderTop: '1px dashed #cbd5e1', paddingTop: '6px' }}>
-                            <em>Informational estimate — not a hospital quote, tariff, or guaranteed treatment cost. Insurance payable & patient OOP require verified hospital billing (Deterministic Engine).</em>
-                          </div>
-
-                          {/* Action link */}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', paddingTop: '2px' }}>
-                            <span style={{ color: '#64748b' }}>
-                              Network: <strong>{isVerified ? 'Dataset Network Match' : isNoMatch ? 'Non-Network' : 'Status Unverified'}</strong>
-                            </span>
                             <button
                               type="button"
                               onClick={(e) => {
@@ -3100,12 +3072,17 @@ export default function HospitalDiscoveryPage({
                                 padding: 0,
                                 color: '#0f766e',
                                 cursor: 'pointer',
+                                fontSize: '11px',
                                 fontWeight: 700,
                                 textDecoration: 'underline'
                               }}
                             >
-                              View Model Drivers & Evidence →
+                              Model drivers →
                             </button>
+                          </div>
+
+                          <div style={{ fontSize: '10.5px', color: '#64748b', borderTop: '1px dashed #cbd5e1', paddingTop: '6px' }}>
+                            Network: <strong>{isVerified ? 'Dataset Network Match' : isNoMatch ? 'Non-Network' : 'Status Unverified'}</strong>
                           </div>
                         </div>
                       );
@@ -3118,70 +3095,28 @@ export default function HospitalDiscoveryPage({
                           background: '#fffbeb',
                           border: '1.5px solid #fde68a',
                           borderRadius: 'var(--radius-sm)',
-                          padding: '14px 16px',
+                          padding: '12px 14px',
                           marginTop: 'auto',
                           display: 'flex',
                           flexDirection: 'column',
-                          gap: '10px'
+                          gap: '8px'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9a3412', fontWeight: 800, fontSize: '13px' }}>
-                          <AlertTriangle size={16} style={{ color: '#ea580c', flexShrink: 0 }} />
-                          <span>COST ESTIMATE UNAVAILABLE</span>
-                        </div>
-
-                        <div style={{ fontSize: '12.5px', color: '#334155', lineHeight: 1.45, fontWeight: 500 }}>
-                          SehatSure currently does not have a verified evidence-backed treatment-cost benchmark or sufficient training data for {procName}.
-                        </div>
-
-                        <div
-                          style={{
-                            background: '#f8fafc',
-                            border: '1px solid #e2e8f0',
-                            borderRadius: '6px',
-                            padding: '8px 10px',
-                            fontSize: '11.5px',
-                            color: '#475569',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '5px'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: '#2563eb', fontWeight: 700 }}>•</span>
-                            <span>
-                              <strong>{specialtyMatchedCount}</strong> hospitals match the selected specialty.
-                            </span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ color: '#64748b', fontWeight: 700 }}>•</span>
-                            <span>
-                              <strong>{procedureMatchedCount}</strong> hospitals have verified procedure-level evidence for {procName}.
-                            </span>
-                          </div>
-                        </div>
-
-                        <div
-                          style={{
-                            fontSize: '11.5px',
-                            color: '#0369a1',
-                            background: '#f0f9ff',
-                            border: '1px solid #bae6fd',
-                            borderRadius: '4px',
-                            padding: '6px 8px',
-                            fontWeight: 600,
-                            display: 'flex',
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            background: '#fef3c7',
+                            color: '#92400e',
+                            border: '1px solid #fde68a',
+                            display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '6px'
-                          }}
-                        >
-                          <span>🛡️</span>
-                          <span>SehatSure will not substitute another procedure's cost.</span>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b', borderTop: '1px dashed #cbd5e1', paddingTop: '6px' }}>
-                          <span>
-                            Network Status: <strong>{isVerified ? 'Dataset-Based Network Match' : isNoMatch ? 'Non-Network Facility' : 'Status Unverified'}</strong>
+                            gap: '4px'
+                          }}>
+                            <AlertTriangle size={12} />
+                            No verified benchmark
                           </span>
                           <button
                             type="button"
@@ -3200,12 +3135,21 @@ export default function HospitalDiscoveryPage({
                               padding: 0,
                               color: '#0284c7',
                               cursor: 'pointer',
+                              fontSize: '11px',
                               fontWeight: 600,
                               textDecoration: 'underline'
                             }}
                           >
-                            Why no estimate?
+                            Why?
                           </button>
+                        </div>
+
+                        <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.4 }}>
+                          Benchmark data unavailable for {procName}.
+                        </div>
+
+                        <div style={{ fontSize: '11px', color: '#64748b', borderTop: '1px dashed #e2e8f0', paddingTop: '6px' }}>
+                          Network: <strong>{isVerified ? 'Dataset Network Match' : isNoMatch ? 'Non-Network Facility' : 'Status Unverified'}</strong>
                         </div>
                       </div>
                     );

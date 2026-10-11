@@ -493,12 +493,8 @@ export default function CareJourneyPage({
                 </button>
               </div>
 
-              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-text)' }}>
+              <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-text)' }}>
                 {getStageTitle(stage)}
-              </div>
-
-              <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
-                {getStageSubtitle(stage)}
               </div>
             </div>
           );

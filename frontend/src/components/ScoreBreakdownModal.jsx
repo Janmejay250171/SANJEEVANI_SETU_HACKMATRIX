@@ -12,6 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import ProvenanceBadge from './ProvenanceBadge';
+import DecisionRadar from './DecisionRadar';
 
 function formatINR(val) {
   if (val === undefined || val === null || isNaN(val)) return '₹0';
@@ -117,186 +118,13 @@ export default function ScoreBreakdownModal({
           </div>
         </div>
 
-        {/* Big Score Summary Hero */}
-        <div
-          style={{
-            background: 'var(--color-bg)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-md)',
-            padding: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '16px',
-            flexWrap: 'wrap'
-          }}
-        >
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', color: 'var(--color-text-secondary)', letterSpacing: '0.05em' }}>
-              Overall Hospital Compatibility
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '38px', fontWeight: 900, color: 'var(--color-text)', letterSpacing: '-0.03em', lineHeight: 1 }}>
-                {granularScore}
-              </span>
-              <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)' }}>
-                / 100 pts
-              </span>
-            </div>
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                marginTop: '10px',
-                padding: '4px 10px',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '12px',
-                fontWeight: 700,
-                background: scoreBadgeBg,
-                color: scoreBadgeColor,
-                border: `1px solid ${scoreBadgeBorder}`
-              }}
-            >
-              {finalScoreNum >= 80 ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />}
-              <span>{scoreStatusText}</span>
-            </div>
-          </div>
+        {/* SehatSure Decision Radar (Authentic 4-Pillar Visualization) */}
+        <DecisionRadar
+          score={score}
+          networkStatus={networkStatus}
+          showDetails={true}
+        />
 
-          <div style={{ textAlign: 'right', minWidth: '160px' }}>
-            <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>Active Policy Schedule:</div>
-            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text)', marginTop: '2px' }}>
-              {policy?.insurer || 'Retail Floater'}
-            </div>
-            <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-              {policy?.planName || policy?.policyType || 'Comprehensive Plan'}
-            </div>
-          </div>
-        </div>
-
-        {/* Four Scoring Pillars (The Points Breakdown) */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Score Points Breakdown
-            </h4>
-            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-              Deterministic 4-Pillar Model
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {/* Pillar 1: Coverage Fit (50%) */}
-            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '14px 16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-primary)' }} />
-                  <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text)' }}>
-                    Coverage & Network Fit (50% Weight)
-                  </span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-primary)' }}>
-                    +{coveragePoints}
-                  </span>
-                  <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                    {' '}/ 50.0 pts
-                  </span>
-                </div>
-              </div>
-              <div style={{ width: '100%', height: '6px', background: 'var(--color-border)', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
-                <div style={{ width: `${coverageFit}%`, height: '100%', background: 'var(--color-primary)', borderRadius: '4px' }} />
-              </div>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.45 }}>
-                {isVerifiedNetwork
-                  ? 'Verified Network Hospital: Eligible for cashless admission and seamless TPA pre-authorization under your insurer.'
-                  : 'Network status unverified in reference dataset; non-network reimbursement rules and deductible filing apply.'}
-              </p>
-            </div>
-
-            {/* Pillar 2: Patient Cost Fit (25%) */}
-            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '14px 16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-success)' }} />
-                  <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text)' }}>
-                    Patient Out-of-Pocket Fit (25% Weight)
-                  </span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-success)' }}>
-                    +{patientCostPoints}
-                  </span>
-                  <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                    {' '}/ 25.0 pts
-                  </span>
-                </div>
-              </div>
-              <div style={{ width: '100%', height: '6px', background: 'var(--color-border)', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
-                <div style={{ width: `${patientCostFit}%`, height: '100%', background: 'var(--color-success)', borderRadius: '4px' }} />
-              </div>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.45 }}>
-                Measures out-of-pocket exposure. Estimated patient payable is{' '}
-                <strong>{formatINR(score?.patientPayable)}</strong> against total estimated procedure cost of{' '}
-                <strong>{formatINR(estimate?.totalEstimate)}</strong>.
-              </p>
-            </div>
-
-            {/* Pillar 3: Hospital Quality & Tier (15%) */}
-            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '14px 16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-secondary-teal)' }} />
-                  <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text)' }}>
-                    Hospital Tier & Infrastructure (15% Weight)
-                  </span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-secondary-teal)' }}>
-                    +{hospitalTypePoints}
-                  </span>
-                  <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                    {' '}/ 15.0 pts
-                  </span>
-                </div>
-              </div>
-              <div style={{ width: '100%', height: '6px', background: 'var(--color-border)', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
-                <div style={{ width: `${hospitalTypeScore}%`, height: '100%', background: 'var(--color-secondary-teal)', borderRadius: '4px' }} />
-              </div>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.45 }}>
-                Accreditation & tier rating ({hospital?.tier || 'Tier 2'}, {hospital?.hospital_type || 'Private'}),
-                reflecting facilities, specialty departments, and clinical infrastructure standards.
-              </p>
-            </div>
-
-            {/* Pillar 4: Co-Pay & Policy Clauses Fit (10%) */}
-            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)', padding: '14px 16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b' }} />
-                  <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text)' }}>
-                    Co-Pay & Deductibles Fit (10% Weight)
-                  </span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#b45309' }}>
-                    +{coPayPoints}
-                  </span>
-                  <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                    {' '}/ 10.0 pts
-                  </span>
-                </div>
-              </div>
-              <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
-                <div style={{ width: `${coPayFit}%`, height: '100%', background: '#f59e0b', borderRadius: '4px' }} />
-              </div>
-              <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.45 }}>
-                Evaluates compliance with room rent caps, policy co-pays ({formatINR(score?.coPayAmount)}),
-                and remaining Sum Insured headroom.
-              </p>
-            </div>
-          </div>
-        </div>
 
         {/* Financial Impact Quick Summary */}
         <div

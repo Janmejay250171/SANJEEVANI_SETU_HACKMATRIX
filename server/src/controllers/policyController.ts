@@ -174,16 +174,18 @@ export async function uploadPolicy(req: Request, res: Response): Promise<void> {
 
 export async function getDemoPolicies(_req: Request, res: Response): Promise<void> {
   try {
-    const list = DEMO_POLICIES.map((d) => ({
-      id: d.id,
-      key: d.key,
-      title: d.title,
-      insurer: d.insurer,
-      planName: d.planName,
-      policyType: d.policyType,
-      description: d.description,
-      badge: d.badge
-    }));
+    const list = DEMO_POLICIES
+      .filter((d) => d.key !== 'sbi-general' && d.id !== 'pol_demo_sbi')
+      .map((d) => ({
+        id: d.id,
+        key: d.key,
+        title: d.title,
+        insurer: d.insurer,
+        planName: d.planName,
+        policyType: d.policyType,
+        description: d.description,
+        badge: d.badge
+      }));
 
     res.status(200).json(list);
   } catch (err: any) {

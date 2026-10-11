@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import LandingHero from '../components/LandingHero';
 import UploadZone from '../components/UploadZone';
 import DemoPicker from '../components/DemoPicker';
 import SteppedLoader from '../components/SteppedLoader';
@@ -16,7 +17,12 @@ export default function UploadPage({ onPolicyLoaded, onRequireAuth }) {
 
   useEffect(() => {
     getDemoPolicies()
-      .then(setDemos)
+      .then((data) => {
+        const activeDemos = (data || []).filter(
+          (d) => d.key !== 'sbi-general' && d.id !== 'pol_demo_sbi'
+        );
+        setDemos(activeDemos);
+      })
       .catch((err) => {
         console.warn('Could not fetch demo policies dynamically:', err);
         setDemos([
@@ -27,7 +33,7 @@ export default function UploadPage({ onPolicyLoaded, onRequireAuth }) {
             insurer: 'Star Health',
             planName: 'Family Health Optima',
             policyType: 'private',
-            description: 'Retail family floater with ₹3,00,000 Sum Insured, ₹3,000/day room limit, 10% co-pay, and proportionate deduction clause.',
+            description: '₹3L Sum Insured • ₹3,000/day room cap • 10% co-pay • Proportionate deduction',
             badge: 'Retail Floater'
           },
           {
@@ -37,7 +43,7 @@ export default function UploadPage({ onPolicyLoaded, onRequireAuth }) {
             insurer: 'HDFC ERGO',
             planName: 'Corporate Group Health Shield',
             policyType: 'corporate',
-            description: 'Employer-provided policy with ₹5 Lakh Sum Insured, 1% room rent cap, zero co-pay, and restoration benefit.',
+            description: '₹5L Sum Insured • 1% room cap • 0% co-pay • Employer group restoration',
             badge: 'Employer Group'
           },
           {
@@ -47,7 +53,7 @@ export default function UploadPage({ onPolicyLoaded, onRequireAuth }) {
             insurer: 'National Health Authority',
             planName: 'Pradhan Mantri Jan Arogya Yojana',
             policyType: 'pmjay',
-            description: 'Government scheme: ₹5,00,000 cashless family cover, no room limit, zero co-pay at empanelled network hospitals.',
+            description: '₹5L Cashless cover • No room cap • 0% co-pay • Empanelled network',
             badge: 'Govt Scheme'
           },
           {
@@ -57,18 +63,8 @@ export default function UploadPage({ onPolicyLoaded, onRequireAuth }) {
             insurer: 'Employees State Insurance Corporation',
             planName: 'ESIC Medical Benefit Scheme',
             policyType: 'esi',
-            description: 'Statutory cover: full coverage at ESIC hospitals and tie-up centers, unlimited SI, zero room rent cap or co-pay.',
+            description: 'Unlimited SI • Zero room cap • 0% co-pay • ESIC network tie-ups',
             badge: 'Statutory Cover'
-          },
-          {
-            id: 'pol_demo_sbi',
-            key: 'sbi-general',
-            title: 'SBI General (Retail Health)',
-            insurer: 'SBI General Insurance',
-            planName: 'Health Insurance Policy - Retail',
-            policyType: 'individual',
-            description: 'Retail policy with 1% room rent limit, 2% ICU limit, 10% non-network co-pay, room category restriction, and schedule-dependent sum insured.',
-            badge: 'Retail Policy'
           }
         ]);
       });
@@ -118,29 +114,29 @@ export default function UploadPage({ onPolicyLoaded, onRequireAuth }) {
     }
   };
 
+  const handleScrollToUpload = () => {
+    const el = document.getElementById('upload-card');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  const handleScrollToDemos = () => {
+    const el = document.getElementById('demo-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="upload-page-content" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--section-gap)' }}>
       {isProcessing && <SteppedLoader />}
 
-      {/* Capability Strip */}
-      <div className="strip">
-        <div className="strip-item">
-          <span className="strip-mark strip-mark-circle" />
-          <span className="strip-label">{t('upload.features.extractionTitle')}</span>
-        </div>
-        <div className="strip-item">
-          <span className="strip-mark strip-mark-diamond" />
-          <span className="strip-label">{t('upload.features.matchingTitle')}</span>
-        </div>
-        <div className="strip-item">
-          <span className="strip-mark strip-mark-bar" />
-          <span className="strip-label">{t('upload.features.costTitle')}</span>
-        </div>
-        <div className="strip-item">
-          <span className="strip-mark strip-mark-cross" />
-          <span className="strip-label">{t('common.verified')}</span>
-        </div>
-      </div>
+      {/* Cinematic AI Hero with restrained canvas animation */}
+      <LandingHero
+        onUploadClick={handleScrollToUpload}
+        onDemoClick={handleScrollToDemos}
+      />
 
       {/* Login Required Notice when logged out */}
       {!user && (
