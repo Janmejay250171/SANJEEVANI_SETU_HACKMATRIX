@@ -16,11 +16,48 @@ function resolveMongoUri(): string {
   let uri = (process.env.MONGODB_URI || process.env.MONGODB_URL || '').trim();
   const dbName = (process.env.DATABASE_NAME || 'sehatsure').trim();
 
+  // 1. Strip surrounding quotes: "..." or '...'
+  if ((uri.startsWith('"') && uri.endsWith('"')) || (uri.startsWith("'") && uri.endsWith("'"))) {
+    uri = uri.slice(1, -1).trim();
+  }
+
+  // 2. Strip accidental duplicate key prefixes: MONGODB_URI= or MONGODB_URL=
+  uri = uri.replace(/^(?:MONGODB_URI|MONGODB_URL)\s*=\s*/i, '').trim();
+
+  // Strip quotes again if they were inside MONGODB_URI="..."
+  if ((uri.startsWith('"') && uri.endsWith('"')) || (uri.startsWith("'") && uri.endsWith("'"))) {
+    uri = uri.slice(1, -1).trim();
+  }
+
+  // 3. Strip accidental placeholder angle brackets: <user>:<pass>
+  if (uri.includes('<') || uri.includes('>')) {
+    uri = uri.replace(/[<>]/g, '');
+  }
+
   if (!uri) {
     return 'mongodb://localhost:27017/sehatsure';
   }
 
-  // If URI has no database name specified, insert dbName
+  // 4. Fix password containing unencoded '@' if multiple '@' signs exist before query/slash
+  if (uri.startsWith('mongodb+srv://') || uri.startsWith('mongodb://')) {
+    const scheme = uri.startsWith('mongodb+srv://') ? 'mongodb+srv://' : 'mongodb://';
+    const rest = uri.slice(scheme.length);
+    const [beforeQuery, ...queryParts] = rest.split('?');
+    const queryPart = queryParts.join('?');
+
+    const firstSlash = beforeQuery.indexOf('/');
+    const authAndHost = firstSlash === -1 ? beforeQuery : beforeQuery.slice(0, firstSlash);
+    const pathPart = firstSlash === -1 ? '' : beforeQuery.slice(firstSlash);
+
+    const atParts = authAndHost.split('@');
+    if (atParts.length > 2) {
+      const host = atParts.pop();
+      const userAndPass = atParts.join('%40');
+      uri = `${scheme}${userAndPass}@${host}${pathPart}${queryPart ? '?' + queryPart : ''}`;
+    }
+  }
+
+  // 5. If URI has no database name specified, insert dbName
   if (uri.startsWith('mongodb+srv://') || uri.startsWith('mongodb://')) {
     const [mainPart, queryPart] = uri.split('?');
     const scheme = uri.startsWith('mongodb+srv://') ? 'mongodb+srv://' : 'mongodb://';
