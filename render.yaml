@@ -13,6 +13,8 @@ services:
         value: production
       - key: NODE_OPTIONS
         value: --max-old-space-size=450
+      - key: NPM_FLAGS
+        value: --include=dev
       - key: MONGODB_URI
         sync: false
       - key: GEMINI_API_KEY
