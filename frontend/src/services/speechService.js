@@ -47,22 +47,97 @@ const STT_REPLACEMENTS = [
   [/\b(?:bio\s*resonance)\b/gi, 'bioresonance']
 ];
 
+export function deduplicateRepeatedPhrases(text) {
+  if (!text) return '';
+  let str = text;
+
+  // 1. Multi-word phrase deduplication (up to 8 consecutive words repeated)
+  const phraseRegex = /(?:^|\s)([\p{L}\p{N}\p{M}\-]+(?:\s+[\p{L}\p{N}\p{M}\-]+){0,7})(?:\s+\1)+(?=\s|$|[.,?!])/giu;
+
+  let prev = '';
+  let count = 0;
+  while (str !== prev && count < 3) {
+    prev = str;
+    str = str.replace(phraseRegex, (match, p1) => {
+      const leadingSpace = match.startsWith(' ') ? ' ' : '';
+      return leadingSpace + p1;
+    });
+    count++;
+  }
+
+  // 2. Token-level duplicate check for adjacent identical words (e.g. "what what", "is is")
+  str = str.replace(/\b([\p{L}\p{N}\p{M}\-]+)\s+\1\b/giu, '$1');
+
+  return str.replace(/\s+/g, ' ').trim();
+}
+
 export function cleanAndCorrectSpeechText(text) {
   if (!text) return '';
   let cleaned = text;
 
-  // Apply healthcare phonetic fixes
+  // 1. Remove repeated phrases and words
+  cleaned = deduplicateRepeatedPhrases(cleaned);
+
+  // 2. Apply healthcare phonetic fixes
   for (const [pattern, replacement] of STT_REPLACEMENTS) {
     cleaned = cleaned.replace(pattern, replacement);
   }
 
-  // Clean redundant spaces and punctuation glitches
+  // 3. Deduplicate again in case phonetic replacement created duplicates
+  cleaned = deduplicateRepeatedPhrases(cleaned);
+
+  // 4. Clean redundant spaces and punctuation glitches
   cleaned = cleaned
     .replace(/\s+/g, ' ')
     .replace(/\s+([.,?!])/g, '$1')
     .trim();
 
   return cleaned;
+}
+
+/**
+ * Merges finalized text and interim speech without repeating overlapping phrases
+ */
+export function mergeFinalAndInterim(finalText, interimText) {
+  if (!finalText) return interimText ? interimText.trim() : '';
+  if (!interimText) return finalText ? finalText.trim() : '';
+
+  const f = finalText.trim();
+  const i = interimText.trim();
+  const fLower = f.toLowerCase();
+  const iLower = i.toLowerCase();
+
+  // If interim text is already completely contained at the end of final text, ignore it
+  if (fLower === iLower || fLower.endsWith(' ' + iLower)) {
+    return f;
+  }
+
+  // If final text is already inside interim at start, return interim
+  if (iLower.startsWith(fLower + ' ')) {
+    return i;
+  }
+
+  // Check word overlap from max possible overlap down to 1 word
+  const fWords = f.split(/\s+/);
+  const iWords = i.split(/\s+/);
+
+  const maxOverlap = Math.min(fWords.length, iWords.length);
+  for (let len = maxOverlap; len >= 1; len--) {
+    const fSlice = fWords.slice(-len).join(' ').toLowerCase();
+    const iSlice = iWords.slice(0, len).join(' ').toLowerCase();
+    if (fSlice === iSlice) {
+      const remainingInterim = iWords.slice(len).join(' ');
+      return remainingInterim ? `${f} ${remainingInterim}` : f;
+    }
+  }
+
+  return `${f} ${i}`;
+}
+
+let isAssistantSpeaking = false;
+
+export function isSpeakingNow() {
+  return isAssistantSpeaking;
 }
 
 /**
@@ -83,9 +158,26 @@ export class SpeechRecognizer {
 
     this.recognition = null;
     this.isListening = false;
+    this.isStarting = false;
     this.shouldStayListening = false;
-    this.finalTranscript = '';
+    this.finalResults = new Map();
+    this.sessionFinalText = '';
     this.interimTranscript = '';
+  }
+
+  _cleanupRecognition() {
+    if (this.recognition) {
+      this.recognition.onstart = null;
+      this.recognition.onresult = null;
+      this.recognition.onerror = null;
+      this.recognition.onend = null;
+      try {
+        this.recognition.abort();
+      } catch {}
+      this.recognition = null;
+    }
+    this.isListening = false;
+    this.isStarting = false;
   }
 
   start() {
@@ -97,8 +189,13 @@ export class SpeechRecognizer {
       return false;
     }
 
-    if (this.isListening) {
-      this.stop();
+    // Echo suppression: stop TTS if assistant is currently speaking
+    if (isSpeakingNow()) {
+      stopSpeaking();
+    }
+
+    if (this.isListening || this.isStarting) {
+      this._cleanupRecognition();
     }
 
     try {
@@ -108,24 +205,28 @@ export class SpeechRecognizer {
       this.recognition.continuous = this.options.continuous;
       this.recognition.interimResults = this.options.interimResults;
       this.recognition.maxAlternatives = 3;
-      this.finalTranscript = '';
-      this.interimTranscript = '';
+      this.isStarting = true;
       this.shouldStayListening = true;
 
       this.recognition.onstart = () => {
+        this.isStarting = false;
         this.isListening = true;
         this.options.onStart();
       };
 
       this.recognition.onresult = (event) => {
-        let finalStr = '';
-        let interimStr = '';
+        // Echo suppression: if assistant is speaking through speakers, drop recognition
+        if (isSpeakingNow()) {
+          return;
+        }
 
+        const interimParts = [];
+
+        // Accumulate final results by index to guarantee each result is processed once
         for (let i = 0; i < event.results.length; ++i) {
           const res = event.results[i];
           if (!res || !res[0]) continue;
 
-          // Inspect alternatives: pick one with healthcare terminology if present
           let bestText = res[0].transcript || '';
           if (res.length > 1) {
             const healthcareRegex = /policy|claim|hospital|cashless|copay|co-pay|deductible|room rent|sum insured|tpa|icu|ayushman|pmjay|esi|cataract|surgery|coverage|pre-auth|mediclaim|sehatsure|laparoscopic|appendectomy|rhinoplasty/i;
@@ -138,19 +239,21 @@ export class SpeechRecognizer {
           }
 
           if (res.isFinal) {
-            finalStr = (finalStr ? finalStr + ' ' : '') + bestText.trim();
+            this.finalResults.set(i, bestText.trim());
           } else {
-            interimStr = (interimStr ? interimStr + ' ' : '') + bestText.trim();
+            interimParts.push(bestText.trim());
           }
         }
 
-        this.finalTranscript = cleanAndCorrectSpeechText(finalStr);
-        this.interimTranscript = cleanAndCorrectSpeechText(interimStr);
+        const currentFinal = Array.from(this.finalResults.values()).join(' ').trim();
+        const combinedFinal = mergeFinalAndInterim(this.sessionFinalText, currentFinal);
+        const rawInterim = interimParts.join(' ').trim();
 
-        const fullRaw = (this.finalTranscript ? this.finalTranscript + (this.interimTranscript ? ' ' + this.interimTranscript : '') : this.interimTranscript).trim();
+        // Merge final and interim without repeating words across boundaries
+        const fullRaw = mergeFinalAndInterim(combinedFinal, rawInterim);
         const full = cleanAndCorrectSpeechText(fullRaw);
 
-        this.options.onTranscript(full, Boolean(this.finalTranscript));
+        this.options.onTranscript(full, Boolean(combinedFinal));
       };
 
       this.recognition.onerror = (event) => {
@@ -179,7 +282,6 @@ export class SpeechRecognizer {
             this.shouldStayListening = false;
             break;
           case 'aborted':
-            // Harmless user cancellation
             return;
           default:
             message = `Speech error: ${event.error}`;
@@ -189,14 +291,19 @@ export class SpeechRecognizer {
       };
 
       this.recognition.onend = () => {
-        // If user is still supposed to be speaking in continuous mode, reconnect smoothly
+        // If user is still supposed to be speaking in continuous mode, preserve final text and reconnect
         if (this.shouldStayListening && this.options.continuous) {
+          const currentFinal = Array.from(this.finalResults.values()).join(' ').trim();
+          this.sessionFinalText = mergeFinalAndInterim(this.sessionFinalText, currentFinal);
+          this.finalResults.clear();
+          this.interimTranscript = '';
           try {
             this.recognition.start();
             return;
           } catch {}
         }
         this.isListening = false;
+        this.isStarting = false;
         this.options.onEnd();
       };
 
@@ -204,6 +311,7 @@ export class SpeechRecognizer {
       return true;
     } catch (err) {
       this.isListening = false;
+      this.isStarting = false;
       this.shouldStayListening = false;
       this.options.onError({
         code: 'INITIALIZATION_FAILED',
@@ -221,16 +329,24 @@ export class SpeechRecognizer {
       } catch {}
     }
     this.isListening = false;
+    this.isStarting = false;
   }
 
   abort() {
     this.shouldStayListening = false;
-    if (this.recognition) {
-      try {
-        this.recognition.abort();
-      } catch {}
-    }
-    this.isListening = false;
+    this._cleanupRecognition();
+  }
+
+  reset() {
+    this.finalResults.clear();
+    this.sessionFinalText = '';
+    this.interimTranscript = '';
+  }
+
+  destroy() {
+    this.shouldStayListening = false;
+    this._cleanupRecognition();
+    this.reset();
   }
 }
 
@@ -257,6 +373,7 @@ export function sanitizeSpeechText(text) {
 let activeUtterance = null;
 
 export function stopSpeaking() {
+  isAssistantSpeaking = false;
   if (!isSpeechSynthesisSupported()) return;
   try {
     window.speechSynthesis.cancel();
@@ -280,6 +397,7 @@ export function speakText(text, options = {}) {
   if (!clean) return false;
 
   try {
+    isAssistantSpeaking = true;
     const utterance = new window.SpeechSynthesisUtterance(clean);
     utterance.lang = language;
     utterance.rate = 1.0;
@@ -305,15 +423,18 @@ export function speakText(text, options = {}) {
     }
 
     utterance.onstart = () => {
+      isAssistantSpeaking = true;
       onStart();
     };
 
     utterance.onend = () => {
+      isAssistantSpeaking = false;
       activeUtterance = null;
       onEnd();
     };
 
     utterance.onerror = (e) => {
+      isAssistantSpeaking = false;
       activeUtterance = null;
       if (e.error !== 'interrupted' && e.error !== 'canceled') {
         onError(e);
@@ -326,6 +447,7 @@ export function speakText(text, options = {}) {
     window.speechSynthesis.speak(utterance);
     return true;
   } catch (err) {
+    isAssistantSpeaking = false;
     onError(err);
     return false;
   }

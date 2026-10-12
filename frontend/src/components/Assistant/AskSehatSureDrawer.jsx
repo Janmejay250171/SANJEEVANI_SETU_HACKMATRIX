@@ -53,6 +53,9 @@ export default function AskSehatSureDrawer({
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const recognizerRef = useRef(null);
+  const isSubmittingRef = useRef(false);
+  const lastSubmittedTextRef = useRef('');
+  const lastSubmitTimeRef = useRef(0);
 
   // Initialize SpeechRecognizer
   useEffect(() => {
@@ -78,7 +81,7 @@ export default function AskSehatSureDrawer({
 
     return () => {
       if (recognizerRef.current) {
-        recognizerRef.current.abort();
+        recognizerRef.current.destroy();
       }
       stopSpeaking();
     };
@@ -87,7 +90,7 @@ export default function AskSehatSureDrawer({
   // Handle panel close: stop speech and mic
   useEffect(() => {
     if (!isOpen) {
-      if (recognizerRef.current) recognizerRef.current.abort();
+      if (recognizerRef.current) recognizerRef.current.destroy();
       stopSpeaking();
       setIsListening(false);
       setIsSpeaking(false);
@@ -164,10 +167,24 @@ export default function AskSehatSureDrawer({
   const handleSendMessage = async (textToSend = null) => {
     const rawMessage = typeof textToSend === 'string' ? textToSend : input;
     const message = (rawMessage || '').trim();
-    if (!message || isLoading) return;
+    if (!message || isLoading || isSubmittingRef.current) return;
 
-    // Cancel speech and listening
-    if (isListening && recognizerRef.current) recognizerRef.current.stop();
+    // Deduplicate rapid identical submissions within 2 seconds
+    const now = Date.now();
+    if (message === lastSubmittedTextRef.current && now - lastSubmitTimeRef.current < 2000) {
+      return;
+    }
+
+    isSubmittingRef.current = true;
+    lastSubmittedTextRef.current = message;
+    lastSubmitTimeRef.current = now;
+
+    // Cancel speech and listening, and reset speech recognition accumulator
+    if (recognizerRef.current) {
+      recognizerRef.current.stop();
+      recognizerRef.current.reset();
+    }
+    setIsListening(false);
     stopSpeaking();
     setIsSpeaking(false);
     setActiveSpeakingId(null);
@@ -243,6 +260,7 @@ export default function AskSehatSureDrawer({
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -256,6 +274,9 @@ export default function AskSehatSureDrawer({
       setActiveSpeakingId(null);
       setSpeechError(null);
       if (recognizerRef.current) {
+        if (!input.trim()) {
+          recognizerRef.current.reset();
+        }
         recognizerRef.current.start();
       }
     }
