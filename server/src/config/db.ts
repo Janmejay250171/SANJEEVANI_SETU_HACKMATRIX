@@ -22,7 +22,8 @@ export async function connectDB(): Promise<typeof mongoose> {
     console.warn(`[Database] Configured MongoDB (${config.mongodbUri.replace(/:[^:@]+@/, ':***@')}) not reachable: ${error.message}`);
     console.warn('[Database] Starting fallback in-memory MongoDB for local execution...');
     try {
-      const { MongoMemoryServer } = await import('mongodb-memory-server');
+      const memPkg = 'mongodb-memory-server';
+      const { MongoMemoryServer } = await (import(memPkg) as Promise<any>);
       mongodInstance = await MongoMemoryServer.create();
       const uri = mongodInstance.getUri();
       const conn = await mongoose.connect(uri);
