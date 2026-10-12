@@ -21,8 +21,13 @@ function resolveMongoUri(): string {
     uri = uri.slice(1, -1).trim();
   }
 
-  // 2. Strip accidental duplicate key prefixes: MONGODB_URI= or MONGODB_URL=
-  uri = uri.replace(/^(?:MONGODB_URI|MONGODB_URL)\s*=\s*/i, '').trim();
+  // 2. Strip accidental duplicate key prefixes or leading equals: e.g. '=mongodb+srv://' or 'MONGODB_URI=...'
+  const mongoIndex = uri.indexOf('mongodb');
+  if (mongoIndex > 0) {
+    uri = uri.slice(mongoIndex).trim();
+  } else {
+    uri = uri.replace(/^(?:MONGODB_URI|MONGODB_URL)?\s*=\s*/i, '').trim();
+  }
 
   // Strip quotes again if they were inside MONGODB_URI="..."
   if ((uri.startsWith('"') && uri.endsWith('"')) || (uri.startsWith("'") && uri.endsWith("'"))) {
